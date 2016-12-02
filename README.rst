@@ -1,6 +1,9 @@
 reqwire
 =======
 
+.. image:: https://img.shields.io/pypi/pyversions/reqwire.svg
+   :target: https://pypi.python.org/pypi/reqwire
+
 **reqwire** wires up your pip requirements with `pip-tools`_.
 
 .. image:: https://asciinema.org/a/94759.png
