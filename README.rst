@@ -10,6 +10,11 @@ reqwire
    :align: center
    :target: https://asciinema.org/a/94759
 
+Install
+-------
+
+``pip install reqwire``, how else?
+
 Features
 --------
 
