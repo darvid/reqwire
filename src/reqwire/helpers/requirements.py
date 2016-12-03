@@ -2,7 +2,6 @@
 from __future__ import absolute_import
 
 import enum
-import html.parser
 import optparse
 
 import atomicwrites
@@ -15,6 +14,7 @@ import piptools.repositories
 import piptools.resolver
 import piptools.utils
 import requests
+import six.moves
 
 
 MYPY = False
@@ -43,7 +43,7 @@ class PyPiHtmlParserState(enum.IntEnum):
     found_package_name = 2
 
 
-class PyPiHtmlParser(html.parser.HTMLParser, object):
+class PyPiHtmlParser(six.moves.html_parser.HTMLParser, object):
 
     def __init__(self, search=None, *args, **kwargs):
         super(PyPiHtmlParser, self).__init__(*args, **kwargs)
