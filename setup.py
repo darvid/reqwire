@@ -24,6 +24,7 @@ def setup():
     install_requirements = [
         'atomicwrites',
         'biome',
+        'emoji',
         'fasteners',
         'pip-tools',
         'requests',
@@ -66,12 +67,13 @@ def setup():
         },
         extras_require=extra_requirements,
         install_requires=install_requirements,
-        license='2-clause BSD',
+        license='MIT',
         long_description=readme(),
         name='reqwire',
         package_dir={'': 'src'},
         packages=setuptools.find_packages('./src'),
         setup_requires=setup_requirements,
+        url='https://github.com/darvid/reqwire',
         use_scm_version=True,
         zip_safe=False,
     )
