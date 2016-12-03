@@ -1,6 +1,7 @@
 """Provides the command-line entrypoint for reqwire."""
 from __future__ import absolute_import
 
+import functools
 import pathlib
 
 import click
@@ -85,6 +86,10 @@ def add(ctx,                      # type: click.Context
         ):
     # type: (...) -> None
     """Add packages to requirement source files."""
+    if not options['directory'].exists():
+        console.error('run `{} init\' first', ctx.find_root().info_name)
+        ctx.abort()
+
     if install:
         pip_install(ctx, *specifiers)
 
@@ -135,6 +140,9 @@ def build(ctx,                  # type: click.Context
           ):
     # type: (...) -> None
     """Builds requirements with pip-compile."""
+    if not options['directory'].exists():
+        console.error('run `{} init\' first', ctx.find_root().info_name)
+        ctx.abort()
     if not all and not tag:
         console.error('either --all or --tag must be provided.')
         ctx.abort()
