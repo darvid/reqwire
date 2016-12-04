@@ -1,7 +1,6 @@
 """Provides the command-line entrypoint for reqwire."""
 from __future__ import absolute_import
 
-import functools
 import pathlib
 
 import click

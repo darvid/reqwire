@@ -26,6 +26,7 @@ def setup():
         'biome',
         'emoji',
         'fasteners',
+        'ordered-set',
         'pip-tools',
         'requests',
     ]

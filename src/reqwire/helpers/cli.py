@@ -16,6 +16,7 @@ if MYPY:
 
 __all__ = (
     'ConsoleWriter',
+    'emojize',
 )
 
 
