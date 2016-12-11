@@ -1,0 +1,642 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>reqwire.helpers.requirements &mdash; reqwire 0.1a3.dev1+ng48a2b3f.d20161210 documentation</title>
+  
+
+  
+
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/pygments/lovelace.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../../genindex.html"/>
+        <link rel="search" title="Search" href="../../../search.html"/>
+    <link rel="top" title="reqwire 0.1a3.dev1+ng48a2b3f.d20161210 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  <script src="../../../_static/js/modernizr.min.js"></script>
+</head>
+
+<body role="document">
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-color--grey-100">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="sphinx-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-800">
+  <div class="mdl-layout__header-row">
+    <!-- Title -->
+    <div class="mdl-layout-title">
+      <span class="mdl-layout-title">
+        reqwire
+        
+          
+          
+            0.1a3.dev1+ng48a2b3f.d20161210
+          
+        
+      </span>
+    </div>
+    <div class="mdl-layout-spacer"></div>
+    <div class="mdl-layout-spacer"></div>
+    
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
+  <label class="mdl-button mdl-js-button mdl-button--icon" for="search">
+    <i class="material-icons">search</i>
+  </label>
+  <div class="mdl-textfield__expandable-holder">
+    <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      <input class="mdl-textfield__input" type="text" id="search" name="q">
+      <label class="mdl-textfield__label" for="search">Enter your query...</label>
+    </form>
+  </div>
+</div>
+    <nav class="mdl-navigation mdl-layout--large-screen-only">
+      
+          
+      
+    </nav>
+  </div>
+</header>
+<!-- <div class="mdl-layout__drawer">
+  
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../primer.html">Primer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../release_notes.html">Release Notes</a></li>
+</ul>
+
+</div> -->
+    <div class="sphinx-ribbon" style="background-image: url(../../../_static/ribbon-slava-bowman.jpg); background-position: left 60%; background-size: 100% auto"></div>
+
+    <main class="sphinx-main mdl-layout__content">
+      <div class="sphinx-container mdl-grid">
+        <div class="mdl-cell mdl-cell--2-col mdl-cell--hide-tablet mdl-cell--hide-phone"></div>
+        <div role="main" class="sphinx-content mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--8-col"
+             itemscope="itemscope" itemtype="http://schema.org/Article">
+          <div itemprop="articleBody">
+            <nav class="breadcrumbs" role="navigation" aria-label="breadcrumbs navigation">
+  
+    <a href="../../../index.html">Docs</a>  &gt;
+    
+      <a href="../../index.html">Module code</a>  &gt;
+    
+    <a class="is-active" href="#">reqwire.helpers.requirements</a>
+  
+  <hr/>
+</nav>
+            
+  <h1>Source code for reqwire.helpers.requirements</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Helpers for managing Python package requirements.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">enum</span>
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">optparse</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">shlex</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+
+<span class="kn">import</span> <span class="nn">atomicwrites</span>
+<span class="kn">import</span> <span class="nn">ordered_set</span>
+<span class="kn">import</span> <span class="nn">pip.basecommand</span>
+<span class="kn">import</span> <span class="nn">pip.cmdoptions</span>
+<span class="kn">import</span> <span class="nn">pip.download</span>
+<span class="kn">import</span> <span class="nn">pip.exceptions</span>
+<span class="kn">import</span> <span class="nn">pip.models</span>
+<span class="kn">import</span> <span class="nn">pip.req</span>
+<span class="kn">import</span> <span class="nn">pip.req.req_file</span>
+<span class="kn">import</span> <span class="nn">piptools.repositories</span>
+<span class="kn">import</span> <span class="nn">piptools.resolver</span>
+<span class="kn">import</span> <span class="nn">piptools.utils</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">six.moves</span>
+
+
+<span class="n">MYPY</span> <span class="o">=</span> <span class="k">False</span>
+<span class="k">if</span> <span class="n">MYPY</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span>  <span class="c"># noqa: F401</span>
+
+    <span class="n">InstallReqIterable</span> <span class="o">=</span> <span class="n">Iterable</span><span class="p">[</span><span class="s">&#39;HashableInstallRequirement&#39;</span><span class="p">]</span>
+    <span class="n">InstallReqSet</span> <span class="o">=</span> <span class="n">Set</span><span class="p">[</span><span class="s">&#39;HashableInstallRequirement&#39;</span><span class="p">]</span>
+    <span class="n">InstallReqFileSet</span> <span class="o">=</span> <span class="n">Set</span><span class="p">[</span><span class="s">&#39;RequirementFile&#39;</span><span class="p">]</span>
+
+    <span class="n">ParseResultType</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span>
+        <span class="n">InstallReqSet</span><span class="p">,</span>
+        <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">Set</span><span class="p">[</span><span class="s">&#39;RequirementFile&#39;</span><span class="p">],</span>
+        <span class="n">Set</span><span class="p">[</span><span class="s">&#39;RequirementFile&#39;</span><span class="p">],</span>
+    <span class="p">]</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&#39;build_ireq_set&#39;</span><span class="p">,</span>
+    <span class="s">&#39;get_canonical_name&#39;</span><span class="p">,</span>
+    <span class="s">&#39;HashableInstallRequirement&#39;</span><span class="p">,</span>
+    <span class="s">&#39;parse_requirements&#39;</span><span class="p">,</span>
+    <span class="s">&#39;PyPiHtmlParser&#39;</span><span class="p">,</span>
+    <span class="s">&#39;PyPiHtmlParserState&#39;</span><span class="p">,</span>
+    <span class="s">&#39;RequirementFile&#39;</span><span class="p">,</span>
+    <span class="s">&#39;resolve_ireqs&#39;</span><span class="p">,</span>
+    <span class="s">&#39;resolve_specifier&#39;</span><span class="p">,</span>
+    <span class="s">&#39;update_ireq_name&#39;</span><span class="p">,</span>
+    <span class="s">&#39;write_requirements&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_PipCommand</span><span class="p">(</span><span class="n">pip</span><span class="o">.</span><span class="n">basecommand</span><span class="o">.</span><span class="n">Command</span><span class="p">):</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;_PipCommand&#39;</span>
+
+
+<div class="viewcode-block" id="HashableInstallRequirement"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.HashableInstallRequirement">[docs]</a><span class="k">class</span> <span class="nc">HashableInstallRequirement</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Hashable</span><span class="p">,</span> <span class="n">pip</span><span class="o">.</span><span class="n">req</span><span class="o">.</span><span class="n">InstallRequirement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A hashable version of :class:`pip.req.InstallRequirement`.&quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="HashableInstallRequirement.from_ireq"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.HashableInstallRequirement.from_ireq">[docs]</a>    <span class="k">def</span> <span class="nf">from_ireq</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">ireq</span><span class="p">):</span>
+        <span class="c"># type: (pip.req.InstallRequirement) -&gt; HashableInstallRequirement</span>
+        <span class="sd">&quot;&quot;&quot;Builds a new instance from an existing install requirement.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span>
+            <span class="n">req</span><span class="o">=</span><span class="n">ireq</span><span class="o">.</span><span class="n">req</span><span class="p">,</span>
+            <span class="n">comes_from</span><span class="o">=</span><span class="n">ireq</span><span class="o">.</span><span class="n">comes_from</span><span class="p">,</span>
+            <span class="n">source_dir</span><span class="o">=</span><span class="n">ireq</span><span class="o">.</span><span class="n">source_dir</span><span class="p">,</span>
+            <span class="n">editable</span><span class="o">=</span><span class="n">ireq</span><span class="o">.</span><span class="n">editable</span><span class="p">,</span>
+            <span class="n">link</span><span class="o">=</span><span class="n">ireq</span><span class="o">.</span><span class="n">link</span><span class="p">,</span>
+            <span class="n">as_egg</span><span class="o">=</span><span class="n">ireq</span><span class="o">.</span><span class="n">as_egg</span><span class="p">,</span>
+            <span class="n">update</span><span class="o">=</span><span class="n">ireq</span><span class="o">.</span><span class="n">update</span><span class="p">,</span>
+            <span class="n">pycompile</span><span class="o">=</span><span class="n">ireq</span><span class="o">.</span><span class="n">pycompile</span><span class="p">,</span>
+            <span class="n">markers</span><span class="o">=</span><span class="n">ireq</span><span class="o">.</span><span class="n">markers</span><span class="p">,</span>
+            <span class="n">isolated</span><span class="o">=</span><span class="n">ireq</span><span class="o">.</span><span class="n">isolated</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">ireq</span><span class="o">.</span><span class="n">options</span><span class="p">,</span>
+            <span class="n">wheel_cache</span><span class="o">=</span><span class="n">ireq</span><span class="o">.</span><span class="n">_wheel_cache</span><span class="p">,</span>
+            <span class="n">constraint</span><span class="o">=</span><span class="n">ireq</span><span class="o">.</span><span class="n">constraint</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>  <span class="c"># noqa: D105</span>
+        <span class="c"># type: (Any) -&gt; bool</span>
+        <span class="c"># TODO(dpg): Compare the underlying requirement only, rather</span>
+        <span class="c"># than the InstallRequirement</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c"># noqa: D105</span>
+        <span class="c"># type: () -&gt; int</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="PyPiHtmlParser"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.PyPiHtmlParser">[docs]</a><span class="k">class</span> <span class="nc">PyPiHtmlParser</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">moves</span><span class="o">.</span><span class="n">html_parser</span><span class="o">.</span><span class="n">HTMLParser</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An HTML parse for Python package indexes.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c"># noqa: D102</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PyPiHtmlParser</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search</span> <span class="o">=</span> <span class="n">search</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">if</span> <span class="n">search</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span> <span class="k">else</span> <span class="k">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">PyPiHtmlParserState</span><span class="o">.</span><span class="n">waiting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collected_packages</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">handle_starttag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>  <span class="c"># noqa: D102</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="o">==</span> <span class="s">&#39;a&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">PyPiHtmlParserState</span><span class="o">.</span><span class="n">collecting_package_name</span>
+
+    <span class="k">def</span> <span class="nf">handle_endtag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="p">):</span>  <span class="c"># noqa: D102</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">tag</span> <span class="o">==</span> <span class="s">&#39;a&#39;</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">PyPiHtmlParserState</span><span class="o">.</span><span class="n">collecting_package_name</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">PyPiHtmlParserState</span><span class="o">.</span><span class="n">waiting</span>
+
+    <span class="k">def</span> <span class="nf">handle_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>  <span class="c"># noqa: D102</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">PyPiHtmlParserState</span><span class="o">.</span><span class="n">collecting_package_name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">collected_packages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">search</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">PyPiHtmlParserState</span><span class="o">.</span><span class="n">found_package_name</span></div>
+
+
+<div class="viewcode-block" id="PyPiHtmlParserState"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.PyPiHtmlParserState">[docs]</a><span class="k">class</span> <span class="nc">PyPiHtmlParserState</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An enumeration of parsing states for :class:`PyPiHtmlParser`.&quot;&quot;&quot;</span>
+
+    <span class="c">#: The default parser state.</span>
+    <span class="n">waiting</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c">#: The state indicating a package anchor tag is being visited.</span>
+    <span class="n">collecting_package_name</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c">#: The state indicating a package matching a search was visited.</span>
+    <span class="n">found_package_name</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+
+<div class="viewcode-block" id="RequirementFile"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.RequirementFile">[docs]</a><span class="k">class</span> <span class="nc">RequirementFile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Represents a Python requirements.txt file.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">filename</span><span class="p">,</span>            <span class="c"># type: str</span>
+                 <span class="n">requirements</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>   <span class="c"># type: Optional[InstallReqSet]</span>
+                 <span class="n">nested_cfiles</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>  <span class="c"># type: Optional[InstallReqFileSet]</span>
+                 <span class="n">nested_rfiles</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>  <span class="c"># type: Optional[InstallReqFileSet]</span>
+                 <span class="n">index_urls</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>     <span class="c"># type: Optional[List[str]]</span>
+                 <span class="p">):</span>
+        <span class="c"># type: (...) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Constructs a new :class:`RequirementFile`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filename: The path to a requirements file. The requirements</span>
+<span class="sd">                file is not required to exist.</span>
+<span class="sd">            requirements: A set of :class:`HashableInstallRequirement`.</span>
+<span class="sd">                If **filename** points to a path that exists and</span>
+<span class="sd">                **requirements** are not provided, then the requirements</span>
+<span class="sd">                will be parsed from the target file.</span>
+<span class="sd">            nested_cfiles: A set of :class:`RequirementFile`.</span>
+<span class="sd">            nested_rfiles: A set of :class:`RequirementFile`.</span>
+<span class="sd">            index_urls: A set of Python package index URLs. The first</span>
+<span class="sd">                URL is assumed to be the primary index URL, while the</span>
+<span class="sd">                rest are extra.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">requirements</span> <span class="o">=</span> <span class="n">requirements</span> <span class="ow">or</span> <span class="n">ordered_set</span><span class="o">.</span><span class="n">OrderedSet</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_urls</span> <span class="o">=</span> <span class="n">ordered_set</span><span class="o">.</span><span class="n">OrderedSet</span><span class="p">(</span><span class="n">index_urls</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nested_cfiles</span> <span class="o">=</span> <span class="n">nested_cfiles</span> <span class="ow">or</span> <span class="n">ordered_set</span><span class="o">.</span><span class="n">OrderedSet</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nested_rfiles</span> <span class="o">=</span> <span class="n">nested_rfiles</span> <span class="ow">or</span> <span class="n">ordered_set</span><span class="o">.</span><span class="n">OrderedSet</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">requirements</span> <span class="ow">is</span> <span class="k">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">index_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># type: () -&gt; Optional[str]</span>
+        <span class="sd">&quot;&quot;&quot;A Python package index URL.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_urls</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_urls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">extra_index_urls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># type: () -&gt; Set[str]</span>
+        <span class="sd">&quot;&quot;&quot;Extra Python package index URLs.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_urls</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_urls</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="k">return</span> <span class="n">ordered_set</span><span class="o">.</span><span class="n">OrderedSet</span><span class="p">()</span>
+
+<div class="viewcode-block" id="RequirementFile.parse"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.RequirementFile.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="c"># type: (str) -&gt; ParseResultType</span>
+        <span class="sd">&quot;&quot;&quot;Parses a requirements file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            *args: Command-line options and arguments passed to pip.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A set of requirements, index URLs, nested constraint files,</span>
+<span class="sd">            and nested requirements files.</span>
+
+<span class="sd">            The nested constraint and requirements files are sets of</span>
+<span class="sd">            :class:`RequirementFile` instances.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nested_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_nested_files</span><span class="p">()</span>
+        <span class="n">pip_options</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="n">build_pip_session</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">repository</span> <span class="o">=</span> <span class="n">piptools</span><span class="o">.</span><span class="n">repositories</span><span class="o">.</span><span class="n">PyPIRepository</span><span class="p">(</span><span class="n">pip_options</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+        <span class="n">requirements</span> <span class="o">=</span> <span class="n">pip</span><span class="o">.</span><span class="n">req</span><span class="o">.</span><span class="n">parse_requirements</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">),</span>
+            <span class="n">finder</span><span class="o">=</span><span class="n">repository</span><span class="o">.</span><span class="n">finder</span><span class="p">,</span>
+            <span class="n">session</span><span class="o">=</span><span class="n">repository</span><span class="o">.</span><span class="n">session</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="n">pip_options</span><span class="p">)</span>
+        <span class="n">requirements</span> <span class="o">=</span> <span class="n">ordered_set</span><span class="o">.</span><span class="n">OrderedSet</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">HashableInstallRequirement</span><span class="o">.</span><span class="n">from_ireq</span><span class="p">(</span><span class="n">ireq</span><span class="p">)</span>
+             <span class="k">for</span> <span class="n">ireq</span> <span class="ow">in</span> <span class="n">requirements</span><span class="p">),</span>
+            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">ireq</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">ireq</span><span class="p">)))</span>
+        <span class="n">index_urls</span> <span class="o">=</span> <span class="n">ordered_set</span><span class="o">.</span><span class="n">OrderedSet</span><span class="p">(</span><span class="n">repository</span><span class="o">.</span><span class="n">finder</span><span class="o">.</span><span class="n">index_urls</span><span class="p">)</span>
+        <span class="n">nested_cfiles</span><span class="p">,</span> <span class="n">nested_rfiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_nested_files</span><span class="p">()</span>
+        <span class="n">nested_requirements</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">requirements_file</span><span class="o">.</span><span class="n">requirements</span>
+              <span class="k">for</span> <span class="n">requirements_file</span> <span class="ow">in</span> <span class="n">nested_rfiles</span><span class="p">)))</span>
+        <span class="n">requirements</span> <span class="o">-=</span> <span class="n">nested_requirements</span>
+        <span class="k">return</span> <span class="n">requirements</span><span class="p">,</span> <span class="n">index_urls</span><span class="p">,</span> <span class="n">nested_cfiles</span><span class="p">,</span> <span class="n">nested_rfiles</span></div>
+
+<div class="viewcode-block" id="RequirementFile.parse_nested_files"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.RequirementFile.parse_nested_files">[docs]</a>    <span class="k">def</span> <span class="nf">parse_nested_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># type: () -&gt; Tuple[InstallReqFileSet, InstallReqFileSet]</span>
+        <span class="sd">&quot;&quot;&quot;Parses a requirements file, looking for nested files.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A set of constraint files and requirements files.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nested_cfiles</span> <span class="o">=</span> <span class="n">ordered_set</span><span class="o">.</span><span class="n">OrderedSet</span><span class="p">()</span>
+        <span class="n">nested_rfiles</span> <span class="o">=</span> <span class="n">ordered_set</span><span class="o">.</span><span class="n">OrderedSet</span><span class="p">()</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">pip</span><span class="o">.</span><span class="n">req</span><span class="o">.</span><span class="n">req_file</span><span class="o">.</span><span class="n">build_parser</span><span class="p">()</span>
+        <span class="n">defaults</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">get_default_values</span><span class="p">()</span>
+        <span class="n">defaults</span><span class="o">.</span><span class="n">index_url</span> <span class="o">=</span> <span class="k">None</span>
+        <span class="k">with</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">args_str</span><span class="p">,</span> <span class="n">options_str</span> <span class="o">=</span> <span class="n">pip</span><span class="o">.</span><span class="n">req</span><span class="o">.</span><span class="n">req_file</span><span class="o">.</span><span class="n">break_args_options</span><span class="p">(</span>
+                    <span class="n">line</span><span class="p">)</span>
+                <span class="n">opts</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">options_str</span><span class="p">),</span> <span class="n">defaults</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">opts</span><span class="o">.</span><span class="n">requirements</span><span class="p">:</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">opts</span><span class="o">.</span><span class="n">requirements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">nested_rfiles</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)))</span>
+                <span class="k">elif</span> <span class="n">opts</span><span class="o">.</span><span class="n">constraints</span><span class="p">:</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">opts</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">nested_cfiles</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">nested_cfiles</span><span class="p">,</span> <span class="n">nested_rfiles</span></div>
+
+<div class="viewcode-block" id="RequirementFile.reload"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.RequirementFile.reload">[docs]</a>    <span class="k">def</span> <span class="nf">reload</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># type: () -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Reloads the current requirements file.&quot;&quot;&quot;</span>
+        <span class="n">parsed_requirements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">requirements</span> <span class="o">=</span> <span class="n">parsed_requirements</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index_urls</span> <span class="o">=</span> <span class="n">parsed_requirements</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nested_cfiles</span> <span class="o">=</span> <span class="n">parsed_requirements</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nested_rfiles</span> <span class="o">=</span> <span class="n">parsed_requirements</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span></div>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c"># noqa: D105</span>
+        <span class="c"># type: () -&gt; str</span>
+        <span class="c"># TODO(dpg): serialize actual requirements.txt?</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c"># noqa: D105</span>
+        <span class="c"># type: () -&gt; str</span>
+        <span class="k">return</span> <span class="s">&#39;&lt;{}(filename={!r})&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="build_ireq_set"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.build_ireq_set">[docs]</a><span class="k">def</span> <span class="nf">build_ireq_set</span><span class="p">(</span><span class="n">specifiers</span><span class="p">,</span>                    <span class="c"># type: Iterable[str]</span>
+                   <span class="n">index_urls</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>  <span class="c"># type: Optional[Iterable[str]]</span>
+                   <span class="n">resolve_canonical_names</span><span class="o">=</span><span class="k">True</span><span class="p">,</span>  <span class="c"># type: bool</span>
+                   <span class="n">resolve_versions</span><span class="o">=</span><span class="k">True</span><span class="p">,</span>         <span class="c"># type: bool</span>
+                   <span class="n">sort_specifiers</span><span class="o">=</span><span class="k">True</span><span class="p">,</span>          <span class="c"># type: bool</span>
+                   <span class="p">):</span>
+    <span class="c"># type: (...) -&gt; InstallReqSet</span>
+    <span class="sd">&quot;&quot;&quot;Builds a set of install requirements.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        specifiers: A list of specifier strings.</span>
+<span class="sd">        index_urls: List of Python package indexes. Only used if</span>
+<span class="sd">            **resolve_canonical_names** or **resolve_versions** is</span>
+<span class="sd">            ``True``.</span>
+<span class="sd">        resolve_canonical_names: Queries package indexes provided by</span>
+<span class="sd">            **index_urls** for the canonical name of each</span>
+<span class="sd">            specifier. For example, *flask* will get resolved to</span>
+<span class="sd">            *Flask*.</span>
+<span class="sd">        resolve_versions: Queries package indexes for latest package</span>
+<span class="sd">            versions.</span>
+<span class="sd">        sort_specifiers: Sorts specifiers alphabetically.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A set of :class:`HashableInstallRequirement`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">install_requirements</span> <span class="o">=</span> <span class="n">ordered_set</span><span class="o">.</span><span class="n">OrderedSet</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">sort_specifiers</span><span class="p">:</span>
+        <span class="n">specifiers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">specifiers</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">specifier</span> <span class="ow">in</span> <span class="n">specifiers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">resolve_versions</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">index_url</span> <span class="ow">in</span> <span class="n">index_urls</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&#39;--extra-index-url&#39;</span><span class="p">,</span> <span class="n">index_url</span><span class="p">])</span>
+            <span class="n">ireq</span> <span class="o">=</span> <span class="n">resolve_specifier</span><span class="p">(</span><span class="n">specifier</span><span class="p">,</span> <span class="k">False</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ireq</span> <span class="o">=</span> <span class="n">HashableInstallRequirement</span><span class="o">.</span><span class="n">from_line</span><span class="p">(</span><span class="n">specifier</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">resolve_canonical_names</span><span class="p">:</span>
+            <span class="n">package_name</span> <span class="o">=</span> <span class="n">piptools</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">name_from_req</span><span class="p">(</span><span class="n">ireq</span><span class="p">)</span>
+            <span class="n">canonical_name</span> <span class="o">=</span> <span class="n">get_canonical_name</span><span class="p">(</span>
+                <span class="n">package_name</span><span class="o">=</span><span class="n">package_name</span><span class="p">,</span> <span class="n">index_urls</span><span class="o">=</span><span class="n">index_urls</span><span class="p">)</span>
+            <span class="n">update_ireq_name</span><span class="p">(</span>
+                <span class="n">install_requirement</span><span class="o">=</span><span class="n">ireq</span><span class="p">,</span> <span class="n">package_name</span><span class="o">=</span><span class="n">canonical_name</span><span class="p">)</span>
+        <span class="n">install_requirements</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ireq</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">install_requirements</span></div>
+
+
+<span class="k">def</span> <span class="nf">build_pip_session</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="c"># type: (str) -&gt; Tuple[optparse.Values, pip.download.PipSession]</span>
+    <span class="n">pip_command</span> <span class="o">=</span> <span class="n">_PipCommand</span><span class="p">()</span>
+    <span class="n">index_opts</span> <span class="o">=</span> <span class="n">pip</span><span class="o">.</span><span class="n">cmdoptions</span><span class="o">.</span><span class="n">make_option_group</span><span class="p">(</span>
+        <span class="n">pip</span><span class="o">.</span><span class="n">cmdoptions</span><span class="o">.</span><span class="n">index_group</span><span class="p">,</span>
+        <span class="n">pip_command</span><span class="o">.</span><span class="n">parser</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pip_command</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">insert_option_group</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">index_opts</span><span class="p">)</span>
+    <span class="n">pip_command</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="n">optparse</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span>
+        <span class="s">&#39;--pre&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="k">False</span><span class="p">))</span>
+    <span class="n">pip_options</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">pip_command</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">pip_command</span><span class="o">.</span><span class="n">_build_session</span><span class="p">(</span><span class="n">pip_options</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pip_options</span><span class="p">,</span> <span class="n">session</span>
+
+
+<div class="viewcode-block" id="get_canonical_name"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.get_canonical_name">[docs]</a><span class="k">def</span> <span class="nf">get_canonical_name</span><span class="p">(</span><span class="n">package_name</span><span class="p">,</span> <span class="n">index_urls</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="c"># type: (str, Optional[Iterable[str]], str) -&gt; str</span>
+    <span class="sd">&quot;&quot;&quot;Returns the canonical name of the given Python package.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        package_name: The package name.</span>
+<span class="sd">        index_urls: A list of Python package indexes.</span>
+<span class="sd">        *args: Command-line options and arguments passed to pip.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The canonical name of a package, or ``None`` if no packaging</span>
+<span class="sd">        could be found in the given search indexes.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">index_urls</span><span class="p">:</span>  <span class="c"># pragma: no cover</span>
+        <span class="n">index_urls</span> <span class="o">=</span> <span class="p">{</span><span class="n">pip</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">PyPI</span><span class="o">.</span><span class="n">simple_url</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">index_url</span> <span class="ow">in</span> <span class="n">index_urls</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">index_url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">PyPiHtmlParser</span><span class="p">(</span><span class="n">search</span><span class="o">=</span><span class="n">package_name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">iter_lines</span><span class="p">():</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">feed</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">encoding</span><span class="p">,</span> <span class="s">&#39;ignore&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">parser</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">PyPiHtmlParserState</span><span class="o">.</span><span class="n">found_package_name</span><span class="p">:</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">collected_packages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">raise</span> <span class="n">pip</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">DistributionNotFound</span><span class="p">(</span>
+        <span class="s">&#39;No matching distribution found for {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package_name</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="parse_requirements"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.parse_requirements">[docs]</a><span class="k">def</span> <span class="nf">parse_requirements</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>  <span class="c"># pragma: no cover</span>
+    <span class="c"># type: (str, str) -&gt; Tuple[InstallReqSet, pip.index.PackageFinder]</span>
+    <span class="sd">&quot;&quot;&quot;Parses a requirements source file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename: The requirements source filename.</span>
+<span class="sd">        *args: Command-line options and arguments passed to pip.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A set of :class:`pip.req.InstallRequirement`, and a</span>
+<span class="sd">        :class:`pip.index.PackageFinder` instance.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pip_options</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="n">build_pip_session</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">repository</span> <span class="o">=</span> <span class="n">piptools</span><span class="o">.</span><span class="n">repositories</span><span class="o">.</span><span class="n">PyPIRepository</span><span class="p">(</span><span class="n">pip_options</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+    <span class="n">requirements</span> <span class="o">=</span> <span class="n">pip</span><span class="o">.</span><span class="n">req</span><span class="o">.</span><span class="n">parse_requirements</span><span class="p">(</span>
+        <span class="n">filename</span><span class="p">,</span>
+        <span class="n">finder</span><span class="o">=</span><span class="n">repository</span><span class="o">.</span><span class="n">finder</span><span class="p">,</span>
+        <span class="n">session</span><span class="o">=</span><span class="n">repository</span><span class="o">.</span><span class="n">session</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">pip_options</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">requirements</span><span class="p">),</span> <span class="n">repository</span><span class="o">.</span><span class="n">finder</span></div>
+
+
+<div class="viewcode-block" id="resolve_ireqs"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.resolve_ireqs">[docs]</a><span class="k">def</span> <span class="nf">resolve_ireqs</span><span class="p">(</span><span class="n">requirements</span><span class="p">,</span>       <span class="c"># type: InstallReqIterable</span>
+                  <span class="n">prereleases</span><span class="o">=</span><span class="k">False</span><span class="p">,</span>  <span class="c"># type: bool</span>
+                  <span class="n">intersect</span><span class="o">=</span><span class="k">False</span><span class="p">,</span>    <span class="c"># type: bool</span>
+                  <span class="o">*</span><span class="n">args</span><span class="p">,</span>              <span class="c"># type: str</span>
+                  <span class="o">**</span><span class="n">kwargs</span>            <span class="c"># type: Any</span>
+                  <span class="p">):</span>  <span class="c"># pragma: no cover</span>
+    <span class="c"># type: (...) -&gt; InstallReqSet</span>
+    <span class="sd">&quot;&quot;&quot;Resolves install requirements with piptools.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        requirements: An iterable of :class:`pip.req.InstallRequirement`.</span>
+<span class="sd">        prereleases: Whether or not to include prereleases.</span>
+<span class="sd">        intersect: Return only install requirements that intersect with</span>
+<span class="sd">            **requirements**. Default behavior is to include the entire</span>
+<span class="sd">            dependency graph as produced by piptools.</span>
+<span class="sd">        *args: Command-line options and arguments passed to pip.</span>
+<span class="sd">        **kwargs: Passed to :class:`piptools.resolver.Resolver`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A set of :class:`pip.req.InstallRequirement`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pip_options</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="n">build_pip_session</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">repository</span> <span class="o">=</span> <span class="n">piptools</span><span class="o">.</span><span class="n">repositories</span><span class="o">.</span><span class="n">PyPIRepository</span><span class="p">(</span><span class="n">pip_options</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+    <span class="n">resolver</span> <span class="o">=</span> <span class="n">piptools</span><span class="o">.</span><span class="n">resolver</span><span class="o">.</span><span class="n">Resolver</span><span class="p">(</span>
+        <span class="n">constraints</span><span class="o">=</span><span class="n">requirements</span><span class="p">,</span> <span class="n">repository</span><span class="o">=</span><span class="n">repository</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">resolver</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">intersect</span><span class="p">:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="n">ireq</span> <span class="k">for</span> <span class="n">ireq</span> <span class="ow">in</span> <span class="n">results</span>
+                   <span class="k">if</span> <span class="n">ireq</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">requirements</span><span class="p">)}</span>
+    <span class="k">return</span> <span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="resolve_specifier"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.resolve_specifier">[docs]</a><span class="k">def</span> <span class="nf">resolve_specifier</span><span class="p">(</span><span class="n">specifier</span><span class="p">,</span> <span class="n">prereleases</span><span class="o">=</span><span class="k">False</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="c"># type: (str, bool, str) -&gt; pip.req.InstallRequirement</span>
+    <span class="sd">&quot;&quot;&quot;Resolves the given specifier.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        specifier: A specifier string.</span>
+<span class="sd">        prereleases: Whether or not to include prereleases.</span>
+<span class="sd">        *args: Command-line options and arguments passed to pip.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A set of :class:`pip.req.InstallRequirement`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ireq</span> <span class="o">=</span> <span class="n">pip</span><span class="o">.</span><span class="n">req</span><span class="o">.</span><span class="n">InstallRequirement</span><span class="o">.</span><span class="n">from_line</span><span class="p">(</span><span class="n">specifier</span><span class="p">)</span>
+    <span class="n">pip_options</span><span class="p">,</span> <span class="n">session</span> <span class="o">=</span> <span class="n">build_pip_session</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">repository</span> <span class="o">=</span> <span class="n">piptools</span><span class="o">.</span><span class="n">repositories</span><span class="o">.</span><span class="n">PyPIRepository</span><span class="p">(</span><span class="n">pip_options</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ireq</span><span class="o">.</span><span class="n">editable</span> <span class="ow">or</span> <span class="n">piptools</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">is_pinned_requirement</span><span class="p">(</span><span class="n">ireq</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ireq</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">repository</span><span class="o">.</span><span class="n">find_best_match</span><span class="p">(</span><span class="n">ireq</span><span class="p">,</span> <span class="n">prereleases</span><span class="o">=</span><span class="n">prereleases</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="update_ireq_name"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.update_ireq_name">[docs]</a><span class="k">def</span> <span class="nf">update_ireq_name</span><span class="p">(</span><span class="n">install_requirement</span><span class="p">,</span> <span class="n">package_name</span><span class="p">):</span>
+    <span class="c"># type: (pip.req.InstallRequirement, str) -&gt; pip.req.InstallRequirement</span>
+    <span class="sd">&quot;&quot;&quot;Updates the name of an existing install requirement.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        install_requirement: A :class:`pip.req.InstallRequirement`</span>
+<span class="sd">            instance.</span>
+<span class="sd">        package_name: The new package name.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The **install_requirement** with mutated requirement name.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">requirement</span> <span class="o">=</span> <span class="n">install_requirement</span><span class="o">.</span><span class="n">req</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">requirement</span><span class="p">,</span> <span class="s">&#39;project_name&#39;</span><span class="p">):</span>
+        <span class="n">requirement</span><span class="o">.</span><span class="n">project_name</span> <span class="o">=</span> <span class="n">package_name</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">requirement</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">package_name</span>
+    <span class="k">return</span> <span class="n">install_requirement</span></div>
+
+
+<div class="viewcode-block" id="write_requirements"><a class="viewcode-back" href="../../../api.html#reqwire.helpers.requirements.write_requirements">[docs]</a><span class="k">def</span> <span class="nf">write_requirements</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span>               <span class="c"># type: str</span>
+                       <span class="n">requirements</span><span class="p">,</span>           <span class="c"># type: InstallReqIterable</span>
+                       <span class="n">index_url</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>         <span class="c"># type: Optional[str]</span>
+                       <span class="n">extra_index_urls</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>  <span class="c"># type: Optional[Iterable[str]]</span>
+                       <span class="n">header</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>            <span class="c"># type: Optional[str]</span>
+                       <span class="p">):</span>
+    <span class="c"># type: (...) -&gt; None</span>
+    <span class="sd">&quot;&quot;&quot;Writes install requirements to a file.</span>
+
+<span class="sd">    Note that this function is destructive and will overwrite any</span>
+<span class="sd">    existing files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename: The output filename.</span>
+<span class="sd">        requirements: An iterable of :class:`pip.req.InstallRequirement`.</span>
+<span class="sd">        index_url: The primary Python package index URL.</span>
+<span class="sd">        extra_index_urls: Extra package index URLs.</span>
+<span class="sd">        header: A header string to prepend to the file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">atomicwrites</span><span class="o">.</span><span class="n">atomic_write</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="k">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ireq</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">requirements</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">ireq</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">ireq</span><span class="p">)):</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">piptools</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">format_requirement</span><span class="p">(</span><span class="n">ireq</span><span class="p">))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <footer class="sphinx-footer mdl-mini-footer">
+  <div class="mdl-mini-footer--left-section">
+    <div role="contentinfo">
+      <p>
+          &copy; Copyright 2016, David Gidwani.
+      </p>
+    </div>
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a>. 
+  </div>
+</footer>
+
+    </main>
+    
+  </div>
+
+  
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'0.1a3.dev1+ng48a2b3f.d20161210',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+  
+
+  <script type="text/javascript" src="../../../_static/js/theme.js"></script> 
+</body>
+</html>

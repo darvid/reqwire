@@ -1,0 +1,444 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>reqwire.scaffold &mdash; reqwire 0.1a3.dev1+ng48a2b3f.d20161210 documentation</title>
+  
+
+  
+
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/pygments/lovelace.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="reqwire 0.1a3.dev1+ng48a2b3f.d20161210 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  <script src="../../_static/js/modernizr.min.js"></script>
+</head>
+
+<body role="document">
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-color--grey-100">
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="sphinx-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-800">
+  <div class="mdl-layout__header-row">
+    <!-- Title -->
+    <div class="mdl-layout-title">
+      <span class="mdl-layout-title">
+        reqwire
+        
+          
+          
+            0.1a3.dev1+ng48a2b3f.d20161210
+          
+        
+      </span>
+    </div>
+    <div class="mdl-layout-spacer"></div>
+    <div class="mdl-layout-spacer"></div>
+    
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
+  <label class="mdl-button mdl-js-button mdl-button--icon" for="search">
+    <i class="material-icons">search</i>
+  </label>
+  <div class="mdl-textfield__expandable-holder">
+    <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+      <input class="mdl-textfield__input" type="text" id="search" name="q">
+      <label class="mdl-textfield__label" for="search">Enter your query...</label>
+    </form>
+  </div>
+</div>
+    <nav class="mdl-navigation mdl-layout--large-screen-only">
+      
+          
+      
+    </nav>
+  </div>
+</header>
+<!-- <div class="mdl-layout__drawer">
+  
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../primer.html">Primer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes.html">Release Notes</a></li>
+</ul>
+
+</div> -->
+    <div class="sphinx-ribbon" style="background-image: url(../../_static/ribbon-slava-bowman.jpg); background-position: left 60%; background-size: 100% auto"></div>
+
+    <main class="sphinx-main mdl-layout__content">
+      <div class="sphinx-container mdl-grid">
+        <div class="mdl-cell mdl-cell--2-col mdl-cell--hide-tablet mdl-cell--hide-phone"></div>
+        <div role="main" class="sphinx-content mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--8-col"
+             itemscope="itemscope" itemtype="http://schema.org/Article">
+          <div itemprop="articleBody">
+            <nav class="breadcrumbs" role="navigation" aria-label="breadcrumbs navigation">
+  
+    <a href="../../index.html">Docs</a>  &gt;
+    
+      <a href="../index.html">Module code</a>  &gt;
+    
+    <a class="is-active" href="#">reqwire.scaffold</a>
+  
+  <hr/>
+</nav>
+            
+  <h1>Source code for reqwire.scaffold</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Scaffold supporting files and directories.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+
+<span class="kn">import</span> <span class="nn">fasteners.process_lock</span>
+<span class="kn">import</span> <span class="nn">ordered_set</span>
+
+<span class="kn">import</span> <span class="nn">reqwire.config</span>
+<span class="kn">import</span> <span class="nn">reqwire.errors</span>
+<span class="kn">import</span> <span class="nn">reqwire.helpers.requirements</span>
+
+
+<span class="n">MYPY</span> <span class="o">=</span> <span class="k">False</span>
+<span class="k">if</span> <span class="n">MYPY</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="p">(</span>  <span class="c"># noqa: F401</span>
+        <span class="n">Iterable</span><span class="p">,</span>
+        <span class="n">Iterator</span><span class="p">,</span>
+        <span class="n">Optional</span><span class="p">,</span>
+        <span class="n">Set</span><span class="p">,</span>
+        <span class="n">Type</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">&#39;build_filename&#39;</span><span class="p">,</span>
+    <span class="s">&#39;build_source_header&#39;</span><span class="p">,</span>
+    <span class="s">&#39;DEFAULT_HEADER&#39;</span><span class="p">,</span>
+    <span class="s">&#39;extend_source_file&#39;</span><span class="p">,</span>
+    <span class="s">&#39;init_source_dir&#39;</span><span class="p">,</span>
+    <span class="s">&#39;init_source_file&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="c">#: The default header format string for requirement source files.</span>
+<span class="n">DEFAULT_HEADER</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s"># Generated by reqwire on %c</span>
+<span class="s">{nested_cfiles}</span><span class="se">\</span>
+<span class="s">{nested_rfiles}</span><span class="se">\</span>
+<span class="s">{index_url}</span><span class="se">\</span>
+<span class="s">{extra_index_urls}</span>
+<span class="s">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="build_filename"><a class="viewcode-back" href="../../api.html#reqwire.scaffold.build_filename">[docs]</a><span class="k">def</span> <span class="nf">build_filename</span><span class="p">(</span><span class="n">working_directory</span><span class="p">,</span>  <span class="c"># type: str</span>
+                   <span class="n">tag_name</span><span class="p">,</span>           <span class="c"># type: str</span>
+                   <span class="n">extension</span><span class="o">=</span><span class="s">&#39;.in&#39;</span><span class="p">,</span>    <span class="c"># type: str</span>
+                   <span class="n">prefix</span><span class="o">=</span><span class="s">&#39;src&#39;</span><span class="p">,</span>       <span class="c"># type: str</span>
+                   <span class="p">):</span>
+    <span class="c"># type: (...) -&gt; pathlib.Path</span>
+    <span class="sd">&quot;&quot;&quot;Constructs a path to a tagged requirement source file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        working_directory: The parent directory of the source file.</span>
+<span class="sd">        tag_name: The tag name.</span>
+<span class="sd">        extension: The file extension. Defaults to *.in*.</span>
+<span class="sd">        prefix: The subdirectory under the working directory to create</span>
+<span class="sd">            the source file in. Defaults to *src*.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wd</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">working_directory</span><span class="p">)</span> <span class="o">/</span> <span class="n">prefix</span>
+    <span class="k">return</span> <span class="n">wd</span> <span class="o">/</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">tag_name</span><span class="p">,</span> <span class="n">extension</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="build_source_header"><a class="viewcode-back" href="../../api.html#reqwire.scaffold.build_source_header">[docs]</a><span class="k">def</span> <span class="nf">build_source_header</span><span class="p">(</span><span class="n">format_string</span><span class="o">=</span><span class="n">DEFAULT_HEADER</span><span class="p">,</span>  <span class="c"># type: str</span>
+                        <span class="n">index_url</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>         <span class="c"># type: Optional[str]</span>
+                        <span class="n">extra_index_urls</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>  <span class="c"># type: Optional[Iterable[str]]</span>
+                        <span class="n">nested_cfiles</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>     <span class="c"># type: Optional[Set[str]]</span>
+                        <span class="n">nested_rfiles</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>     <span class="c"># type: Optional[Set[str]]</span>
+                        <span class="n">timestamp</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>     <span class="c"># type: Optional[datetime.datetime]</span>
+                        <span class="p">):</span>
+    <span class="c"># type: (...) -&gt; str</span>
+    <span class="sd">&quot;&quot;&quot;Builds a header for requirement source file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        format_string: A format string containing one or more of the</span>
+<span class="sd">            following keys: **nested_cfiles**, **nested_rfiles**,</span>
+<span class="sd">            **index_url**, and **extra_index_urls**. The format string</span>
+<span class="sd">            may also include ``strftime`` formatting directives.</span>
+<span class="sd">        index_url: A Python package index URL.</span>
+<span class="sd">        extra_index_urls: Extra Python package index URLs.</span>
+<span class="sd">        nested_cfiles: A set of nested constraint files.</span>
+<span class="sd">        nested_rfiles: A set of nested requirement files.</span>
+<span class="sd">        timestamp: A :class:`datetime.datetime` object. If not provided,</span>
+<span class="sd">            defaults to the current datetime.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The rendered header string.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">timestamp</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+    <span class="n">components</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;nested_cfiles&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+        <span class="s">&#39;nested_rfiles&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+        <span class="s">&#39;index_url&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+        <span class="s">&#39;extra_index_urls&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">nested_cfiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+        <span class="n">components</span><span class="p">[</span><span class="s">&#39;nested_cfiles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="s">&#39;-c {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rfile</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">rfile</span> <span class="ow">in</span> <span class="n">nested_cfiles</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">nested_rfiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+        <span class="n">components</span><span class="p">[</span><span class="s">&#39;nested_rfiles&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="s">&#39;-r {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rfile</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">rfile</span> <span class="ow">in</span> <span class="n">nested_rfiles</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">index_url</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+        <span class="n">components</span><span class="p">[</span><span class="s">&#39;index_url&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">(</span><span class="s">&#39;--index-url&#39;</span><span class="p">,</span> <span class="n">index_url</span><span class="o">.</span><span class="n">strip</span><span class="p">()))</span>
+    <span class="k">if</span> <span class="n">extra_index_urls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+        <span class="n">components</span><span class="p">[</span><span class="s">&#39;extra_index_urls&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="s">&#39;--extra-index-url&#39;</span><span class="p">,</span> <span class="n">extra_index_url</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">extra_index_url</span> <span class="ow">in</span> <span class="n">extra_index_urls</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">components</span><span class="p">[</span><span class="n">key</span><span class="p">]:</span>
+            <span class="n">components</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span>
+
+    <span class="k">return</span> <span class="n">timestamp</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">format_string</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="o">**</span><span class="n">components</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span></div>
+
+
+<span class="nd">@fasteners</span><span class="o">.</span><span class="n">process_lock</span><span class="o">.</span><span class="n">interprocess_locked</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">reqwire</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">lockfile</span><span class="p">))</span>
+<div class="viewcode-block" id="extend_source_file"><a class="viewcode-back" href="../../api.html#reqwire.scaffold.extend_source_file">[docs]</a><span class="k">def</span> <span class="nf">extend_source_file</span><span class="p">(</span><span class="n">working_directory</span><span class="p">,</span>             <span class="c"># type: str</span>
+                       <span class="n">tag_name</span><span class="p">,</span>                      <span class="c"># type: str</span>
+                       <span class="n">specifiers</span><span class="p">,</span>                    <span class="c"># type: Iterable[str]</span>
+                       <span class="n">extension</span><span class="o">=</span><span class="s">&#39;.in&#39;</span><span class="p">,</span>               <span class="c"># type: str</span>
+                       <span class="n">index_url</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>                <span class="c"># type: Optional[str]</span>
+                       <span class="n">extra_index_urls</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>   <span class="c"># type: Optional[Set[str]]</span>
+                       <span class="n">lookup_index_urls</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>  <span class="c"># type: Optional[Set[str]]</span>
+                       <span class="n">resolve_canonical_names</span><span class="o">=</span><span class="k">True</span><span class="p">,</span>  <span class="c"># type: bool</span>
+                       <span class="n">resolve_versions</span><span class="o">=</span><span class="k">True</span><span class="p">,</span>         <span class="c"># type: bool</span>
+                       <span class="p">):</span>
+    <span class="c"># type: (...) -&gt; None</span>
+    <span class="sd">&quot;&quot;&quot;Adds requirements to an existing requirement source file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        working_directory: The parent directory of the source file.</span>
+<span class="sd">        tag_name: The tag name.</span>
+<span class="sd">        specifiers: A list of specifiers.</span>
+<span class="sd">        extension: The file extension. Defaults to *.in*.</span>
+<span class="sd">        index_url: A Python package index URL.</span>
+<span class="sd">        extra_index_urls: Extra Python package index URLs.</span>
+<span class="sd">        lookup_index_urls: Python package index URLs used to search</span>
+<span class="sd">            for packages during resolving. This parameter is only useful</span>
+<span class="sd">            if an attempt is made to add packages found only in indexes</span>
+<span class="sd">            that are only specified in nested requirement source files.</span>
+<span class="sd">        resolve_canonical_names: Queries package indexes provided by</span>
+<span class="sd">            **index_urls** for the canonical name of each</span>
+<span class="sd">            specifier. For example, *flask* will get resolved to</span>
+<span class="sd">            *Flask*.</span>
+<span class="sd">        resolve_versions: Queries package indexes for latest package</span>
+<span class="sd">            versions.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">extra_index_urls</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+        <span class="n">extra_index_urls</span> <span class="o">=</span> <span class="n">ordered_set</span><span class="o">.</span><span class="n">OrderedSet</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">extra_index_urls</span> <span class="o">=</span> <span class="n">ordered_set</span><span class="o">.</span><span class="n">OrderedSet</span><span class="p">(</span><span class="n">extra_index_urls</span><span class="p">)</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">build_filename</span><span class="p">(</span>
+        <span class="n">working_directory</span><span class="o">=</span><span class="n">working_directory</span><span class="p">,</span>
+        <span class="n">tag_name</span><span class="o">=</span><span class="n">tag_name</span><span class="p">,</span>
+        <span class="n">extension</span><span class="o">=</span><span class="n">extension</span><span class="p">)</span>
+    <span class="n">req_file</span> <span class="o">=</span> <span class="n">reqwire</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">requirements</span><span class="o">.</span><span class="n">RequirementFile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">index_url</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span> <span class="ow">and</span> <span class="n">index_url</span> <span class="o">!=</span> <span class="n">req_file</span><span class="o">.</span><span class="n">index_url</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">reqwire</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">IndexUrlMismatchError</span><span class="p">(</span>
+                <span class="s">&#39;&quot;{}&quot; != &quot;{}&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">index_url</span><span class="p">,</span> <span class="n">req_file</span><span class="o">.</span><span class="n">index_url</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">index_url</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+            <span class="n">index_url</span> <span class="o">=</span> <span class="n">req_file</span><span class="o">.</span><span class="n">index_url</span>
+            <span class="n">extra_index_urls</span> <span class="o">|=</span> <span class="n">req_file</span><span class="o">.</span><span class="n">extra_index_urls</span>
+
+    <span class="k">if</span> <span class="n">lookup_index_urls</span> <span class="ow">is</span> <span class="k">None</span><span class="p">:</span>
+        <span class="n">lookup_index_urls</span> <span class="o">=</span> <span class="p">{</span><span class="n">index_url</span><span class="p">}</span> <span class="k">if</span> <span class="n">index_url</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">extra_index_urls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="k">None</span><span class="p">:</span>
+            <span class="n">lookup_index_urls</span> <span class="o">|=</span> <span class="nb">set</span><span class="p">(</span><span class="n">extra_index_urls</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lookup_index_urls</span> <span class="ow">and</span> <span class="n">req_file</span><span class="o">.</span><span class="n">index_urls</span><span class="p">:</span>
+            <span class="n">lookup_index_urls</span> <span class="o">|=</span> <span class="n">req_file</span><span class="o">.</span><span class="n">index_urls</span>
+
+    <span class="n">req_file</span><span class="o">.</span><span class="n">requirements</span> <span class="o">|=</span> <span class="n">reqwire</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">requirements</span><span class="o">.</span><span class="n">build_ireq_set</span><span class="p">(</span>
+        <span class="n">specifiers</span><span class="o">=</span><span class="n">specifiers</span><span class="p">,</span>
+        <span class="n">index_urls</span><span class="o">=</span><span class="n">lookup_index_urls</span><span class="p">,</span>
+        <span class="n">resolve_canonical_names</span><span class="o">=</span><span class="n">resolve_canonical_names</span><span class="p">,</span>
+        <span class="n">resolve_versions</span><span class="o">=</span><span class="n">resolve_versions</span><span class="p">)</span>
+
+    <span class="n">resolved_requirements</span> <span class="o">=</span> <span class="n">reqwire</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">requirements</span><span class="o">.</span><span class="n">resolve_ireqs</span><span class="p">(</span>
+        <span class="n">requirements</span><span class="o">=</span><span class="n">req_file</span><span class="o">.</span><span class="n">requirements</span><span class="p">,</span> <span class="n">intersect</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
+
+    <span class="n">nested_cfiles</span> <span class="o">=</span> <span class="n">ordered_set</span><span class="o">.</span><span class="n">OrderedSet</span><span class="p">(</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">cf</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">cf</span> <span class="ow">in</span> <span class="n">req_file</span><span class="o">.</span><span class="n">nested_cfiles</span><span class="p">)</span>
+    <span class="n">nested_rfiles</span> <span class="o">=</span> <span class="n">ordered_set</span><span class="o">.</span><span class="n">OrderedSet</span><span class="p">(</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">rf</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">rf</span> <span class="ow">in</span> <span class="n">req_file</span><span class="o">.</span><span class="n">nested_rfiles</span><span class="p">)</span>
+
+    <span class="n">reqwire</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">requirements</span><span class="o">.</span><span class="n">write_requirements</span><span class="p">(</span>
+        <span class="n">filename</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+        <span class="n">requirements</span><span class="o">=</span><span class="n">resolved_requirements</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="n">build_source_header</span><span class="p">(</span>
+            <span class="n">index_url</span><span class="o">=</span><span class="n">index_url</span><span class="p">,</span>
+            <span class="n">extra_index_urls</span><span class="o">=</span><span class="n">extra_index_urls</span><span class="p">,</span>
+            <span class="n">nested_cfiles</span><span class="o">=</span><span class="n">nested_cfiles</span><span class="p">,</span>
+            <span class="n">nested_rfiles</span><span class="o">=</span><span class="n">nested_rfiles</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="init_source_dir"><a class="viewcode-back" href="../../api.html#reqwire.scaffold.init_source_dir">[docs]</a><span class="k">def</span> <span class="nf">init_source_dir</span><span class="p">(</span><span class="n">working_directory</span><span class="p">,</span>    <span class="c"># type: str</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="mo">0o777</span><span class="p">,</span>           <span class="c"># type: int</span>
+                    <span class="n">create_parents</span><span class="o">=</span><span class="k">True</span><span class="p">,</span>  <span class="c"># type: bool</span>
+                    <span class="n">exist_ok</span><span class="o">=</span><span class="k">False</span><span class="p">,</span>       <span class="c"># type: bool</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s">&#39;src&#39;</span><span class="p">,</span>           <span class="c"># type: str</span>
+                    <span class="p">):</span>
+    <span class="c"># type: (...) -&gt; pathlib.Path</span>
+    <span class="sd">&quot;&quot;&quot;Creates a requirements source directory.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        working_directory: The parent directory of the source file.</span>
+<span class="sd">        mode: Permissions with which to create source file. Defaults to</span>
+<span class="sd">            `0o777`.</span>
+<span class="sd">        create_parents: Whether or not parent directories should be</span>
+<span class="sd">            created if missing.</span>
+<span class="sd">        exist_ok: Does not raise an :class:`OSError` if directory</span>
+<span class="sd">            creation failed.</span>
+<span class="sd">        name: The name of the subdirectory to create under the working</span>
+<span class="sd">            directory. Defaults to *src*.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wd</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">working_directory</span><span class="p">)</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">wd</span> <span class="o">/</span> <span class="n">name</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">src</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="n">create_parents</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">exist_ok</span><span class="p">:</span>
+            <span class="k">raise</span>
+    <span class="k">return</span> <span class="n">src</span></div>
+
+
+<div class="viewcode-block" id="init_source_file"><a class="viewcode-back" href="../../api.html#reqwire.scaffold.init_source_file">[docs]</a><span class="k">def</span> <span class="nf">init_source_file</span><span class="p">(</span><span class="n">working_directory</span><span class="p">,</span>      <span class="c"># type: str</span>
+                     <span class="n">tag_name</span><span class="p">,</span>               <span class="c"># type: str</span>
+                     <span class="n">extension</span><span class="o">=</span><span class="s">&#39;.in&#39;</span><span class="p">,</span>        <span class="c"># type: str</span>
+                     <span class="n">index_url</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>         <span class="c"># type: Optional[str]</span>
+                     <span class="n">extra_index_urls</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>  <span class="c"># type: Optional[Iterable[str]]</span>
+                     <span class="n">encoding</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>          <span class="c"># type: Optional[str]</span>
+                     <span class="n">errors</span><span class="o">=</span><span class="k">None</span><span class="p">,</span>            <span class="c"># type: Optional[str]</span>
+                     <span class="n">mode</span><span class="o">=</span><span class="mo">0o666</span><span class="p">,</span>             <span class="c"># type: int</span>
+                     <span class="n">overwrite</span><span class="o">=</span><span class="k">False</span><span class="p">,</span>        <span class="c"># type: bool</span>
+                     <span class="p">):</span>
+    <span class="c"># type: (...) -&gt; pathlib.Path</span>
+    <span class="sd">&quot;&quot;&quot;Creates a requirements source file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        working_directory: The requirements working directory.</span>
+<span class="sd">        tag_name: The tag name.</span>
+<span class="sd">        extension: The file extension. Defaults to &quot;.in&quot;.</span>
+<span class="sd">        index_url: Base URL of Python package index.</span>
+<span class="sd">        extra_index_urls: Iterable of URLs of secondary package indexes.</span>
+<span class="sd">        encoding: Passed to :func:`io.open` when creating source file.</span>
+<span class="sd">        errors: Passed to :func:`io.open` when creating source file.</span>
+<span class="sd">        mode: Permissions with which to create source file. Defaults to</span>
+<span class="sd">            `0o666`.</span>
+<span class="sd">        overwrite: Whether or not to overwrite an existing source file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to source file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">build_filename</span><span class="p">(</span>
+        <span class="n">working_directory</span><span class="o">=</span><span class="n">working_directory</span><span class="p">,</span>
+        <span class="n">tag_name</span><span class="o">=</span><span class="n">tag_name</span><span class="p">,</span>
+        <span class="n">extension</span><span class="o">=</span><span class="n">extension</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">filename</span><span class="o">.</span><span class="n">touch</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+            <span class="k">raise</span>
+
+    <span class="k">with</span> <span class="n">io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="s">&#39;wb&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">build_source_header</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">filename</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <footer class="sphinx-footer mdl-mini-footer">
+  <div class="mdl-mini-footer--left-section">
+    <div role="contentinfo">
+      <p>
+          &copy; Copyright 2016, David Gidwani.
+      </p>
+    </div>
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a>. 
+  </div>
+</footer>
+
+    </main>
+    
+  </div>
+
+  
+
+  
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1a3.dev1+ng48a2b3f.d20161210',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script> 
+</body>
+</html>
