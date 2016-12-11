@@ -4,12 +4,12 @@ root = true
 end_of_line = lf
 insert_final_newline = true
 
-[*.{py,yml,ini}]
+[*.{ini,py,rst,yml}]
 indent_style = space
 
 [*.py]
 charset = utf-8
 indent_size = 4
 
-[*.{yml,ini}]
+[*.{ini,rst,yml}]
 indent_size = 2

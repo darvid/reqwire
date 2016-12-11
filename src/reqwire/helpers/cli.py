@@ -10,7 +10,7 @@ import emoji
 
 
 MYPY = False
-if MYPY:
+if MYPY:  # pragma: no cover
     from typing import Any, Iterator, Tuple  # noqa: F401
 
 
@@ -25,7 +25,7 @@ def emojize(message, **kwargs):
     """Wrapper around :func:`emoji.emojize` for Windows compatibility.
 
     Emoji are not well supported under Windows. This function not only
-    checks :prop:`sys.platform`, but the file ``/proc/version`` as well
+    checks :data:`sys.platform`, but the file ``/proc/version`` as well
     to prevent *"emojification"* on the Windows Subsystem for Linux
     (WSL, otherwise known as Ubuntu on Windows).
 
@@ -53,8 +53,10 @@ class ConsoleWriter(object):
     """Facilitates writing formatted, informational messages to a TTY."""
 
     format_strings = {
-        'warn': click.style(emojize(':warning: {msg}'), fg='yellow'),
-        'error': click.style(emojize(':skull: {msg}'), fg='red'),
+        'error': click.style(':skull: {msg}', fg='red'),
+        'fatal': click.style(':skull: {msg}', fg='red'),
+        'warn': click.style(':warning: {msg}', fg='yellow'),
+        'warning': click.style(':warning: {msg}', fg='yellow'),
     }
 
     def __init__(self, verbose=True):
@@ -73,11 +75,12 @@ class ConsoleWriter(object):
 
         Args:
             message: The message to write to stdout.
-            *args, **kwargs: Used to format message.
+            *args: Used to format message.
+            **kwargs: Used to format message.
 
         """
         if self.verbose:
-            click.echo(message.format(*args, **kwargs))
+            click.echo(emojize(message.format(*args, **kwargs)))
 
     def error(self, message, *args, **kwargs):
         # type: (str, Any, Any) -> None
@@ -85,7 +88,8 @@ class ConsoleWriter(object):
 
         Args:
             message: The message to write to stdout.
-            *args, **kwargs: Used to format message.
+            *args: Used to format message.
+            **kwargs: Used to format message.
 
         """
         self._echo_formatted('error', message, *args, **kwargs)
@@ -96,10 +100,11 @@ class ConsoleWriter(object):
 
         Args:
             message: The message to write to stdout.
-            *args, **kwargs: Used to format message.
+            *args: Used to format message.
+            **kwargs: Used to format message.
 
         """
-        self._echo_formatted('error', message, *args, **kwargs)
+        self._echo_formatted('fatal', message, *args, **kwargs)
 
     def info(self, message, *args, **kwargs):
         # type: (str, Any, Any) -> None
@@ -107,7 +112,8 @@ class ConsoleWriter(object):
 
         Args:
             message: The message to write to stdout.
-            *args, **kwargs: Used to format message.
+            *args: Used to format message.
+            **kwargs: Used to format message.
 
         """
         self._echo_formatted('info', message, *args, **kwargs)
@@ -118,7 +124,8 @@ class ConsoleWriter(object):
 
         Args:
             message: The message to write to stdout.
-            *args, **kwargs: Used to format message.
+            *args: Used to format message.
+            **kwargs: Used to format message.
 
         """
         self._echo_formatted('warn', message, *args, **kwargs)
@@ -129,7 +136,8 @@ class ConsoleWriter(object):
 
         Args:
             message: The message to write to stdout.
-            *args, **kwargs: Used to format message.
+            *args: Used to format message.
+            **kwargs: Used to format message.
 
         """
         self._echo_formatted('warn', message, *args, **kwargs)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""reqwire: a wrapper for easily managing requirements with pip-tools."""
+"""reqwire: wire up Python requirements with pip-tools."""
 from __future__ import absolute_import
 
 import io

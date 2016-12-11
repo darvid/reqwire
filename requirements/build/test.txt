@@ -8,14 +8,17 @@ atomicwrites==1.1.5
 attrdict==2.0.0           # via biome
 biome==0.1.2
 click==6.6                # via pip-tools
+cookies==2.2.1            # via responses
 coverage==4.2             # via pytest-cov
 emoji==0.3.9
 enum34==1.1.6
 fasteners==0.14.1
 first==2.0.1              # via pip-tools
 funcsigs==1.0.2           # via mock
-mock==2.0.0               # via pytest-mock
+future==0.16.0
+mock==2.0.0               # via pytest-mock, responses
 monotonic==1.2            # via fasteners
+ordered-set==2.0.1
 pathlib2==2.1.0
 pathlib==1.0.1            # via biome
 pbr==1.10.0               # via mock
@@ -25,4 +28,5 @@ pytest-cov==2.4.0
 pytest-mock==1.5.0
 pytest==3.0.4             # via pytest-cov, pytest-mock
 requests==2.12.3
-six==1.10.0               # via attrdict, fasteners, mock, pathlib2, pip-tools
+responses==0.5.1
+six==1.10.0               # via attrdict, fasteners, mock, pathlib2, pip-tools, responses

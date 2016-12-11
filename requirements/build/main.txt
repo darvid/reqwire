@@ -13,6 +13,7 @@ enum34==1.1.6
 fasteners==0.14.1
 first==2.0.1              # via pip-tools
 monotonic==1.2            # via fasteners
+ordered-set==2.0.1
 pathlib2==2.1.0
 pathlib==1.0.1            # via biome
 pip-tools==1.8.0

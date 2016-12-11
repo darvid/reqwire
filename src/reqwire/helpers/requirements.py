@@ -14,6 +14,7 @@ import ordered_set
 import pip.basecommand
 import pip.cmdoptions
 import pip.download
+import pip.exceptions
 import pip.models
 import pip.req
 import pip.req.req_file
@@ -21,11 +22,12 @@ import piptools.repositories
 import piptools.resolver
 import piptools.utils
 import requests
+import six
 import six.moves
 
 
 MYPY = False
-if MYPY:
+if MYPY:  # pragma: no cover
     from typing import Any, Iterable, Optional, Set, Tuple  # noqa: F401
 
     InstallReqIterable = Iterable['HashableInstallRequirement']
@@ -333,22 +335,27 @@ def get_canonical_name(package_name, index_urls=None, *args):
         index_urls: A list of Python package indexes.
         *args: Command-line options and arguments passed to pip.
 
+    Returns:
+        The canonical name of a package, or ``None`` if no packaging
+        could be found in the given search indexes.
+
     """
-    if not index_urls:
+    if not index_urls:  # pragma: no cover
         index_urls = {pip.models.PyPI.simple_url}
     for index_url in index_urls:
         response = requests.get(index_url, stream=True)
         parser = PyPiHtmlParser(search=package_name)
         for line in response.iter_lines():
-            parser.feed(line)
+            parser.feed(six.text_type(line, response.encoding, 'ignore'))
             if parser.state == PyPiHtmlParserState.found_package_name:
                 parser.close()
                 return parser.collected_packages[-1]
         parser.close()
-    return package_name
+    raise pip.exceptions.DistributionNotFound(
+        'No matching distribution found for {}'.format(package_name))
 
 
-def parse_requirements(filename, *args):
+def parse_requirements(filename, *args):  # pragma: no cover
     # type: (str, str) -> Tuple[InstallReqSet, pip.index.PackageFinder]
     """Parses a requirements source file.
 
@@ -376,7 +383,7 @@ def resolve_ireqs(requirements,       # type: InstallReqIterable
                   intersect=False,    # type: bool
                   *args,              # type: str
                   **kwargs            # type: Any
-                  ):
+                  ):  # pragma: no cover
     # type: (...) -> InstallReqSet
     """Resolves install requirements with piptools.
 
