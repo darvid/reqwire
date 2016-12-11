@@ -132,6 +132,7 @@ def extend_source_file(working_directory,             # type: str
                        index_url=None,                # type: Optional[str]
                        extra_index_urls=None,   # type: Optional[Set[str]]
                        lookup_index_urls=None,  # type: Optional[Set[str]]
+                       prereleases=False,             # type: bool
                        resolve_canonical_names=True,  # type: bool
                        resolve_versions=True,         # type: bool
                        ):
@@ -149,6 +150,7 @@ def extend_source_file(working_directory,             # type: str
             for packages during resolving. This parameter is only useful
             if an attempt is made to add packages found only in indexes
             that are only specified in nested requirement source files.
+        prereleases: Whether or not to include prereleases.
         resolve_canonical_names: Queries package indexes provided by
             **index_urls** for the canonical name of each
             specifier. For example, *flask* will get resolved to
@@ -186,11 +188,14 @@ def extend_source_file(working_directory,             # type: str
     req_file.requirements |= reqwire.helpers.requirements.build_ireq_set(
         specifiers=specifiers,
         index_urls=lookup_index_urls,
+        prereleases=prereleases,
         resolve_canonical_names=resolve_canonical_names,
         resolve_versions=resolve_versions)
 
     resolved_requirements = reqwire.helpers.requirements.resolve_ireqs(
-        requirements=req_file.requirements, intersect=True)
+        requirements=req_file.requirements,
+        prereleases=prereleases,
+        intersect=True)
 
     nested_cfiles = ordered_set.OrderedSet(
         str(cf.filename.relative_to(filename.parent))

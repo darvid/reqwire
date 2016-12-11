@@ -55,7 +55,9 @@ def main(ctx, directory, quiet, extension):
     }
 
 
-@main.command()
+@main.command('add')
+@click.option('-b', '--build', default=False, is_flag=True,
+              help='Builds the given tag(s) after adding packages.')
 @click.option('-t', '--tag',
               help=('Target requirement tags. '
                     'Multiple tags supported. '
@@ -65,6 +67,8 @@ def main(ctx, directory, quiet, extension):
               help='Installs packages with pip.')
 @click.option('--pin/--no-pin', default=True,
               help='Saves specifiers with pinned package versions.')
+@click.option('--pre', default=False, is_flag=True,
+              help='Include prerelease versions.')
 @click.option('--resolve-canonical-names/--no-resolve-canonical-names',
               default=True,
               help='Queries Python package index for canonical package names.')
@@ -74,15 +78,17 @@ def main(ctx, directory, quiet, extension):
 @click.argument('specifiers', nargs=-1)
 @click.pass_obj
 @click.pass_context
-def add(ctx,                      # type: click.Context
-        options,                  # type: Dict[str, Any]
-        tag,                      # type: Iterable[str]
-        install,                  # type: bool
-        pin,                      # type: bool
-        resolve_canonical_names,  # type: bool
-        resolve_versions,         # type: bool
-        specifiers,               # type: Tuple[str]
-        ):
+def main_add(ctx,                      # type: click.Context
+             options,                  # type: Dict[str, Any]
+             build,                    # type: bool
+             tag,                      # type: Iterable[str]
+             install,                  # type: bool
+             pin,                      # type: bool
+             pre,                      # type: bool
+             resolve_canonical_names,  # type: bool
+             resolve_versions,         # type: bool
+             specifiers,               # type: Tuple[str]
+             ):
     # type: (...) -> None
     """Add packages to requirement source files."""
     if not options['directory'].exists():
@@ -90,6 +96,8 @@ def add(ctx,                      # type: click.Context
         ctx.abort()
 
     if install:
+        if pre:
+            specifiers.insert(0, '--pre')
         pip_install(ctx, *specifiers)
 
     if not tag:
@@ -116,14 +124,18 @@ def add(ctx,                      # type: click.Context
                 specifiers=specifiers,
                 extension=options['extension'],
                 lookup_index_urls=lookup_index_urls,
+                prereleases=pre,
                 resolve_canonical_names=resolve_canonical_names,
                 resolve_versions=resolve_versions)
     except piptools.exceptions.NoCandidateFound as err:
         console.error(str(err))
         ctx.abort()
 
+    if build:
+        ctx.invoke(main_build, all=False, tag=tag)
 
-@main.command()
+
+@main.command('build')
 @click.option('-a', '--all', is_flag=True,
               help='Builds all tags.')
 @click.option('-t', '--tag', help='Saves tagged requirement source files.',
@@ -131,12 +143,12 @@ def add(ctx,                      # type: click.Context
 @click.argument('pip_compile_options', nargs=-1)
 @click.pass_obj
 @click.pass_context
-def build(ctx,                  # type: click.Context
-          options,              # type: Dict[str, Any]
-          all,                  # type: bool
-          tag,                  # type: Iterable[str]
-          pip_compile_options,  # type: Iterable[str]
-          ):
+def main_build(ctx,                  # type: click.Context
+               options,              # type: Dict[str, Any]
+               all,                  # type: bool
+               tag,                  # type: Iterable[str]
+               pip_compile_options,  # type: Iterable[str]
+               ):
     # type: (...) -> None
     """Builds requirements with pip-compile."""
     if not options['directory'].exists():
@@ -161,7 +173,7 @@ def build(ctx,                  # type: click.Context
         sh.pip_compile(*args)
 
 
-@main.command()
+@main.command('init')
 @click.option('-f', '--force', help='Force initialization.', is_flag=True)
 @click.option('-i', '--index-url', envvar='PIP_INDEX_URL',
               help='Base URL of Python package index.')
@@ -174,13 +186,13 @@ def build(ctx,                  # type: click.Context
               multiple=True)
 @click.pass_obj
 @click.pass_context
-def init(ctx,              # type: click.Context
-         options,          # type: Dict[str, Any]
-         force,            # type: bool
-         index_url,        # type: str
-         tag,              # type: Iterable[str]
-         extra_index_url,  # type: Tuple[str]
-         ):
+def main_init(ctx,              # type: click.Context
+              options,          # type: Dict[str, Any]
+              force,            # type: bool
+              index_url,        # type: str
+              tag,              # type: Iterable[str]
+              extra_index_url,  # type: Tuple[str]
+              ):
     # type: (...) -> None
     """Initialize reqwire in the current directory."""
     if not force and options['directory'].exists():

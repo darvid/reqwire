@@ -266,6 +266,7 @@ class RequirementFile(object):
 
 def build_ireq_set(specifiers,                    # type: Iterable[str]
                    index_urls=None,  # type: Optional[Iterable[str]]
+                   prereleases=False,             # type: bool
                    resolve_canonical_names=True,  # type: bool
                    resolve_versions=True,         # type: bool
                    sort_specifiers=True,          # type: bool
@@ -278,6 +279,7 @@ def build_ireq_set(specifiers,                    # type: Iterable[str]
         index_urls: List of Python package indexes. Only used if
             **resolve_canonical_names** or **resolve_versions** is
             ``True``.
+        prereleases: Whether or not to include prereleases.
         resolve_canonical_names: Queries package indexes provided by
             **index_urls** for the canonical name of each
             specifier. For example, *flask* will get resolved to
@@ -298,7 +300,7 @@ def build_ireq_set(specifiers,                    # type: Iterable[str]
             args = []
             for index_url in index_urls:
                 args.extend(['--extra-index-url', index_url])
-            ireq = resolve_specifier(specifier, False, *args)
+            ireq = resolve_specifier(specifier, prereleases, *args)
         else:
             ireq = HashableInstallRequirement.from_line(specifier)
         if resolve_canonical_names:
