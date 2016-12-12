@@ -1,6 +1,10 @@
 reqwire
 =======
 
+.. image:: https://badges.gitter.im/python-reqwire/Lobby.svg
+   :alt: Join the chat at https://gitter.im/python-reqwire/Lobby
+   :target: https://gitter.im/python-reqwire/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+
 .. image:: https://img.shields.io/pypi/pyversions/reqwire.svg
    :target: https://pypi.python.org/pypi/reqwire
 
