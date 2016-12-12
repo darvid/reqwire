@@ -87,7 +87,7 @@ def main_add(ctx,                      # type: click.Context
              pre,                      # type: bool
              resolve_canonical_names,  # type: bool
              resolve_versions,         # type: bool
-             specifiers,               # type: Tuple[str]
+             specifiers,               # type: Tuple[str, ...]
              ):
     # type: (...) -> None
     """Add packages to requirement source files."""
@@ -97,7 +97,7 @@ def main_add(ctx,                      # type: click.Context
 
     if install:
         if pre:
-            specifiers.insert(0, '--pre')
+            specifiers = tuple(['--pre'] + list(specifiers))
         pip_install(ctx, *specifiers)
 
     if not tag:

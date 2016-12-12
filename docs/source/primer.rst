@@ -21,8 +21,8 @@ Required Reading
 State of Python Package Management
 ----------------------------------
 
-Although `new`__ and `improved`__ ways of managing Python requirements are
-on the horizon, the current standard of including and maintaining at
+Although `new`__ and `improved`__ ways of managing Python requirements
+are on the horizon, the current standard of including and maintaining at
 least one requirements.txt file probably isn't going anywhere.
 
 Third-party tools like `pip-tools`_ aren't perfect solutions, but until

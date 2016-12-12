@@ -1,12 +1,21 @@
 reqwire
 =======
 
-.. image:: https://badges.gitter.im/python-reqwire/Lobby.svg
-   :alt: Join the chat at https://gitter.im/python-reqwire/Lobby
-   :target: https://gitter.im/python-reqwire/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+.. image:: https://img.shields.io/pypi/v/reqwire.svg
+   :target: https://pypi.python.org/pypi/reqwire
 
 .. image:: https://img.shields.io/pypi/pyversions/reqwire.svg
    :target: https://pypi.python.org/pypi/reqwire
+
+.. image:: https://travis-ci.org/darvid/reqwire.svg?branch=master
+   :target: https://travis-ci.org/darvid/reqwire
+
+.. image:: https://img.shields.io/coveralls/darvid/reqwire.svg
+   :target: https://coveralls.io/github/darvid/reqwire
+
+.. image:: https://badges.gitter.im/python-reqwire/Lobby.svg
+   :alt: Join the chat at https://gitter.im/python-reqwire/Lobby
+   :target: https://gitter.im/python-reqwire/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 **reqwire** wires up your pip requirements with `pip-tools`_.
 
@@ -17,7 +26,13 @@ reqwire
 Install
 -------
 
-``pip install reqwire``, how else?
+From **PyPI**::
+
+    $ pip install -U reqwire
+
+From **source**::
+
+    $ pip install -e git+https://github.com/darvid/reqwire.git#egg=reqwire
 
 Features
 --------
@@ -52,6 +67,24 @@ slightly opinionated workflow:
   entirely separate environments.
 
 
+Disclaimer
+----------
+
+**reqwire** makes no claims about being designed specifically for
+humans, bonobos, cats, or any other land mammal. This project is **not**
+farm raised, free range, organic, low sugar, MSG free, gluten free,
+halal, kosher, vegan, or particularly of any nutritional value
+whatsoever. It just wraps `pip-tools`_ and helps you manage your freakin
+Python requirements. ☮ 🌈
+
+
+Links
+-----
+
+* `Source code <https://github.com/darvid/reqwire>`_
+* `Documentation <http://reqwire.rtfd.io>`_
+
+
 Roadmap
 -------
 
@@ -62,7 +95,7 @@ Roadmap
   (easily possible with **pip-compile**)
 * Provide a utility for generating setup and runtime requirements in
   setup.py scripts using setuptools.
-* Abandon in favor of Pipfile 👌
+* Abandon in favor of `Pipfile`_ 👌
 
 
 .. _pip-tools: https://github.com/nvie/pip-tools
