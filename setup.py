@@ -63,6 +63,7 @@ def setup():
             'Operating System :: Microsoft :: Windows',
         ],
         description=__doc__,
+        discover_requirements=True,
         entry_points={
             'console_scripts': [
                 'reqwire = reqwire.cli:main',

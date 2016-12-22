@@ -4,6 +4,18 @@ Release Notes
 .. contents::
    :backlinks: none
 
+
+0.1a4
+-----
+
+* Corrected package setup to include `sh <https://github.com/amoffat/sh>`_
+  as an installation dependency.
+* Updated ``MANIFEST.in`` to include additional files in distribution.
+* Made source and build directories configurable through command-line
+  and environment variables.
+* File headers now include modelines for Vim and Sublime Text (via
+  `STEmacsModelines <https://github.com/kvs/STEmacsModelines>`_).
+
 0.1a3 (12/11/16)
 ----------------
 

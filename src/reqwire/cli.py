@@ -2,7 +2,9 @@
 from __future__ import absolute_import
 
 import pathlib
+import tempfile
 
+import atomicwrites
 import click
 import piptools.exceptions
 import sh
@@ -36,22 +38,37 @@ def pip_install(ctx, *specifiers):
 
 @click.group()
 @click.option('-d', '--directory', default='requirements',
+              envvar='REQWIRE_DIR_BASE',
               help='Requirements directory.')
 @click.option('-q', '--quiet/--verbose', default=False,
               help='Suppress output.')
 @click.option('--extension', default='.in',
-              help=('File extension used for requirement source files. '
-                    'Defaults to ".in".'))
+              help='File extension used for requirement source files. '
+                   'Defaults to ".in".')
+@click.option('--source-directory', default='src', envvar='REQWIRE_DIR_SOURCE',
+              help='Source directory relative to requirements directory. '
+                   'Defaults to "src".')
+@click.option('--build-directory', default='lck', envvar='REQWIRE_DIR_BUILD',
+              help='Build directory relative to requirements directory. '
+                   'Defaults to "lck".')
 @click.version_option(version=reqwire.__version__)
 @click.pass_context
-def main(ctx, directory, quiet, extension):
-    # type: (click.Context, str, str, bool) -> None
+def main(ctx,
+         directory,         # type: click.Context
+         quiet,             # type: bool
+         extension,         # type: str
+         source_directory,  # type: str
+         build_directory,   # type: str
+         ):
+    # type: (...) -> None
     """reqwire: micromanages your requirements."""
     requirements_dir = pathlib.Path(directory)
     console.verbose = not quiet
     ctx.obj = {
+        'build_dir': build_directory,
         'directory': requirements_dir,
         'extension': extension,
+        'source_dir': source_directory,
     }
 
 
@@ -104,7 +121,7 @@ def main_add(ctx,                      # type: click.Context
         tag = ('main',)
 
     pip_options, session = reqwire.helpers.requirements.build_pip_session()
-    src_dir = options['directory'] / 'src'
+    src_dir = options['directory'] / options['source_dir']
     lookup_index_urls = set()  # type: Set[str]
 
     for tag_name in tag:
@@ -157,8 +174,10 @@ def main_build(ctx,                  # type: click.Context
     if not all and not tag:
         console.error('either --all or --tag must be provided.')
         ctx.abort()
-    src_dir = options['directory'] / 'src'
-    dest_dir = options['directory'] / 'build'
+    src_dir = options['directory'] / options['source_dir']
+    dest_dir = options['directory'] / options['build_dir']
+    if not dest_dir.exists():
+        dest_dir.mkdir()
     default_args = ['-r']
     if not tag:
         pattern = '*{}'.format(options['extension'])
@@ -166,11 +185,15 @@ def main_build(ctx,                  # type: click.Context
     for tag_name in tag:
         src = src_dir / ''.join((tag_name, options['extension']))
         dest = dest_dir / '{}.txt'.format(tag_name)
-        console.info('building {}', click.format_filename(dest))
-        args = default_args
-        args += [str(src), '-o', str(dest)]
+        console.info('building {}', click.format_filename(str(dest)))
+        args = default_args.copy()
+        args += [str(src)]
         args += list(pip_compile_options)
-        sh.pip_compile(*args)
+        with atomicwrites.AtomicWriter(str(dest), 'w', True).open() as f:
+            f.write(reqwire.scaffold.MODELINES_HEADER)
+            with tempfile.NamedTemporaryFile() as temp_file:
+                args += ['-o', temp_file.name]
+                sh.pip_compile(*args, _out=f, _tty_out=False)
 
 
 @main.command('init')
@@ -179,7 +202,7 @@ def main_build(ctx,                  # type: click.Context
               help='Base URL of Python package index.')
 @click.option('-t', '--tag',
               help=('Tagged requirements files to create. '
-                    'Defaults to main, qa, and test.'),
+                    'Defaults to docs, main, qa, and test.'),
               multiple=True)
 @click.option('--extra-index-url', envvar='PIP_EXTRA_INDEX_URL',
               help='Extra URLs of package indexes',
@@ -207,7 +230,7 @@ def main_init(ctx,              # type: click.Context
     console.info('created {}', click.format_filename(build_dir))
 
     if not tag:
-        tag = ('main', 'qa', 'test')
+        tag = ('docs', 'main', 'qa', 'test')
     for tag_name in tag:
         filename = reqwire.scaffold.init_source_file(
             working_directory=options['directory'],

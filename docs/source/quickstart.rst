@@ -24,7 +24,7 @@ Usage
    This will scaffold out a requirements directory::
 
        requirements/
-       ├── build
+       ├── lck
        └── src
            ├── main.in
            ├── qa.in
