@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
-
-sys.path.insert(0, os.path.abspath('../../src'))
-
-from reqwire import __version__ as version
+import pkg_resources
 
 
 extensions = [
@@ -24,6 +19,7 @@ master_doc = 'index'
 project = u'reqwire'
 copyright = u'2016, David Gidwani'
 author = u'David Gidwani'
+version = pkg_resources.get_distribution('reqwire').version
 release = version
 language = None
 exclude_patterns = []
