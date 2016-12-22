@@ -186,7 +186,7 @@ def main_build(ctx,                  # type: click.Context
         src = src_dir / ''.join((tag_name, options['extension']))
         dest = dest_dir / '{}.txt'.format(tag_name)
         console.info('building {}', click.format_filename(str(dest)))
-        args = default_args.copy()
+        args = default_args[:]
         args += [str(src)]
         args += list(pip_compile_options)
         with atomicwrites.AtomicWriter(str(dest), 'w', True).open() as f:

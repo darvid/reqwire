@@ -132,6 +132,16 @@ reqwire build
 
   Builds one or more tags.
 
+* ``reqwire build -a -- [pip-compile options]...``
+
+  Passes all additional options and arguments to **pip-compile**.
+
+  For instance, to build requirements with hashes:
+
+  .. code-block:: shell
+
+     $ reqwire build -a -- --generate-hashes
+
 reqwire init
 ~~~~~~~~~~~~
 
