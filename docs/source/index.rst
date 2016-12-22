@@ -20,7 +20,7 @@ reqwire
 .. raw:: html
 
       <script type="text/javascript"
-              src="https://asciinema.org/a/94759.js"
-              id="asciicast-94759" async></script>
+              src="https://asciinema.org/a/97035.js"
+              id="asciicast-97035" async></script>
 
 .. _pip-tools: https://github.com/nvie/pip-tools

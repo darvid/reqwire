@@ -223,11 +223,11 @@ def main_init(ctx,              # type: click.Context
         console.error('requirements directory already exists')
         ctx.abort()
     src_dir = reqwire.scaffold.init_source_dir(
-        options['directory'], exist_ok=force)
+        options['directory'], exist_ok=force, name=options['source_dir'])
     console.info('created {}', click.format_filename(src_dir))
 
     build_dir = reqwire.scaffold.init_source_dir(
-        options['directory'], exist_ok=force, name='build')
+        options['directory'], exist_ok=force, name=options['build_dir'])
     console.info('created {}', click.format_filename(build_dir))
 
     if not tag:

@@ -5,6 +5,13 @@ Release Notes
    :backlinks: none
 
 
+0.1.1 (12/22/16)
+----------------
+
+* Fixed ``reqwire init``, uses user-defined source and build directory
+  names.
+
+
 0.1 (12/22/16)
 --------------
 

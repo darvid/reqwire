@@ -19,9 +19,9 @@ reqwire
 
 **reqwire** wires up your pip requirements with `pip-tools`_.
 
-.. image:: https://asciinema.org/a/94759.png
+.. image:: https://asciinema.org/a/97035.png
    :align: center
-   :target: https://asciinema.org/a/94759
+   :target: https://asciinema.org/a/97035
 
 Install
 -------
