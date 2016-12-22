@@ -4,5 +4,5 @@
 -r main.in
 --index-url https://pypi.python.org/simple
 Sphinx==1.5
-sphinx-md-theme==0.1a3
+sphinx-md-theme==0.1a4
 sphinxcontrib-napoleon==0.6.0
