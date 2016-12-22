@@ -232,6 +232,8 @@ class RequirementFile(object):
         defaults.index_url = None
         with io.open(str(self.filename), 'r') as f:
             for line in f:
+                if line.startswith('#'):
+                    continue
                 args_str, options_str = pip.req.req_file.break_args_options(
                     line)
                 opts, _ = parser.parse_args(shlex.split(options_str), defaults)

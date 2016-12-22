@@ -168,3 +168,16 @@ reqwire init
 * ``reqwire init --extra-index-url INDEX_URL``
 
   Adds ``extra-index-url`` options to requirement source files.
+
+reqwire remove
+~~~~~~~~~~~~~~
+
+* ``reqwire remove [specifier]...``
+
+  Removes the provided package name(s) from the main requirement source
+  file.
+
+* ``reqwire remove -t TAG [specifier]...``
+
+  Removes the provided package name(s) from one or more tagged
+  requirement source files.

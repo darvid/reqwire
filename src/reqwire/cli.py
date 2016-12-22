@@ -7,6 +7,7 @@ import tempfile
 import atomicwrites
 import click
 import piptools.exceptions
+import piptools.utils
 import sh
 
 import reqwire
@@ -167,7 +168,7 @@ def main_build(ctx,                  # type: click.Context
                pip_compile_options,  # type: Iterable[str]
                ):
     # type: (...) -> None
-    """Builds requirements with pip-compile."""
+    """Build requirements with pip-compile."""
     if not options['directory'].exists():
         console.error('run `{} init\' first', ctx.find_root().info_name)
         ctx.abort()
@@ -219,7 +220,7 @@ def main_init(ctx,              # type: click.Context
     # type: (...) -> None
     """Initialize reqwire in the current directory."""
     if not force and options['directory'].exists():
-        console.error('requirements directory already exists', fg='red')
+        console.error('requirements directory already exists')
         ctx.abort()
     src_dir = reqwire.scaffold.init_source_dir(
         options['directory'], exist_ok=force)
@@ -239,3 +240,57 @@ def main_init(ctx,              # type: click.Context
             index_url=index_url,
             extra_index_urls=extra_index_url)
         console.info('created {}', click.format_filename(filename))
+
+
+@main.command('remove')
+@click.option('-t', '--tag',
+              help=('Tagged requirements files to create. '
+                    'Defaults to docs, main, qa, and test.'),
+              multiple=True)
+@click.argument('specifiers', nargs=-1)
+@click.pass_obj
+@click.pass_context
+def main_remove(ctx,
+                options,
+                tag,
+                specifiers,
+                ):
+    # type: (...) -> None
+    """Remove packages from requirement source files."""
+    if not options['directory'].exists():
+        console.error('run `{} init\' first', ctx.find_root().info_name)
+        ctx.abort()
+
+    if not tag:
+        tag = ('main',)
+
+    for tag_name in tag:
+        filename = reqwire.scaffold.build_filename(
+            working_directory=options['directory'],
+            tag_name=tag_name,
+            extension=options['extension'])
+        if not filename.exists():
+            console.warn('"{}" does not exist',
+                         click.format_filename(str(filename)))
+            continue
+        req_file = reqwire.helpers.requirements.RequirementFile(
+            str(filename))
+        for specifier in specifiers:
+            hireq = (reqwire.helpers.requirements.HashableInstallRequirement
+                     .from_line(specifier))
+            for requirement in req_file.requirements:
+                src_req_name = piptools.utils.name_from_req(requirement)
+                target_req_name = piptools.utils.name_from_req(hireq)
+                if src_req_name == target_req_name:
+                    req_file.requirements.remove(requirement)
+                    console.info('removed "{}" from {}',
+                                 src_req_name, tag_name)
+
+        reqwire.helpers.requirements.write_requirements(
+            filename=str(filename),
+            requirements=req_file.requirements,
+            header=reqwire.scaffold.build_source_header(
+                index_url=req_file.index_url,
+                extra_index_urls=req_file.extra_index_urls,
+                nested_cfiles=req_file.nested_cfiles,
+                nested_rfiles=req_file.nested_rfiles))
