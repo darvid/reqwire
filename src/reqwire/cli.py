@@ -224,11 +224,11 @@ def main_init(ctx,              # type: click.Context
         ctx.abort()
     src_dir = reqwire.scaffold.init_source_dir(
         options['directory'], exist_ok=force, name=options['source_dir'])
-    console.info('created {}', click.format_filename(src_dir))
+    console.info('created {}', click.format_filename(str(src_dir)))
 
     build_dir = reqwire.scaffold.init_source_dir(
         options['directory'], exist_ok=force, name=options['build_dir'])
-    console.info('created {}', click.format_filename(build_dir))
+    console.info('created {}', click.format_filename(str(build_dir)))
 
     if not tag:
         tag = ('docs', 'main', 'qa', 'test')
