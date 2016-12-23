@@ -29,6 +29,7 @@ def setup():
         'ordered-set',
         'pip-tools',
         'requests',
+        'sh',
     ]
     setup_requirements = ['six', 'setuptools>=17.1', 'setuptools_scm']
     needs_sphinx = {
