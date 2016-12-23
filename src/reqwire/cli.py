@@ -239,7 +239,7 @@ def main_init(ctx,              # type: click.Context
             extension=options['extension'],
             index_url=index_url,
             extra_index_urls=extra_index_url)
-        console.info('created {}', click.format_filename(filename))
+        console.info('created {}', click.format_filename(str(filename)))
 
 
 @main.command('remove')

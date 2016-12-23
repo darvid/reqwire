@@ -308,6 +308,6 @@ def init_source_file(working_directory,      # type: str
             raise
 
     with io.open(str(filename), 'wb', encoding=encoding, errors=errors) as f:
-        f.write(build_source_header())
+        f.write(build_source_header().encode('utf-8'))
 
     return filename
