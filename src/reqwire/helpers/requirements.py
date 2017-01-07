@@ -15,6 +15,7 @@ import pip.basecommand
 import pip.cmdoptions
 import pip.download
 import pip.exceptions
+import pip.index
 import pip.models
 import pip.req
 import pip.req.req_file
@@ -83,6 +84,16 @@ class HashableInstallRequirement(typing.Hashable, pip.req.InstallRequirement):
             options=ireq.options,
             wheel_cache=ireq._wheel_cache,
             constraint=ireq.constraint)
+
+    @classmethod
+    def from_line(cls, name, **kwargs):
+        # type: (str, Any) -> HashableInstallRequirement
+        if name.startswith('-e'):
+            name = name[2:].strip()
+            ireq = cls.from_editable(name, **kwargs)
+        else:
+            ireq = cls.from_line(name, **kwargs)
+        return cls.from_ireq(ireq)
 
     def __eq__(self, other):  # noqa: D105
         # type: (Any) -> bool
@@ -270,6 +281,7 @@ def build_ireq_set(specifiers,                    # type: Iterable[str]
                    index_urls=None,  # type: Optional[Iterable[str]]
                    prereleases=False,             # type: bool
                    resolve_canonical_names=True,  # type: bool
+                   resolve_source_dir=None,       # type: str
                    resolve_versions=True,         # type: bool
                    sort_specifiers=True,          # type: bool
                    ):
@@ -286,6 +298,9 @@ def build_ireq_set(specifiers,                    # type: Iterable[str]
             **index_urls** for the canonical name of each
             specifier. For example, *flask* will get resolved to
             *Flask*.
+        resolve_source_dir: If an editable local directory is provided,
+            rewrites the path to a path relative to the given
+            absolute path.
         resolve_versions: Queries package indexes for latest package
             versions.
         sort_specifiers: Sorts specifiers alphabetically.
@@ -298,19 +313,28 @@ def build_ireq_set(specifiers,                    # type: Iterable[str]
     if sort_specifiers:
         specifiers = sorted(specifiers)
     for specifier in specifiers:
-        if resolve_versions:
+        if specifier.startswith('-e'):
+            ireq = HashableInstallRequirement.from_line(specifier)
+        elif resolve_versions:
             args = []
             for index_url in index_urls:
                 args.extend(['--extra-index-url', index_url])
             ireq = resolve_specifier(specifier, prereleases, *args)
-        else:
-            ireq = HashableInstallRequirement.from_line(specifier)
-        if resolve_canonical_names:
+        if resolve_canonical_names and not ireq.editable:
             package_name = piptools.utils.name_from_req(ireq)
             canonical_name = get_canonical_name(
                 package_name=package_name, index_urls=index_urls)
             update_ireq_name(
                 install_requirement=ireq, package_name=canonical_name)
+        elif resolve_source_dir is not None and ireq.source_dir:
+            try:
+                ireq.source_dir = str(
+                    pathlib.Path(ireq.source_dir)
+                    .relative_to(pathlib.Path(resolve_source_dir)))
+                ireq.link = pip.index.Link('file://{}'.format(
+                    ireq.source_dir))
+            except ValueError:
+                pass
         install_requirements.add(ireq)
     return install_requirements
 
@@ -328,6 +352,15 @@ def build_pip_session(*args):
     pip_options, _ = pip_command.parse_args(list(args))
     session = pip_command._build_session(pip_options)
     return pip_options, session
+
+
+def format_requirement(ireq, include_specifier=True):
+    # type: (HashableInstallRequirement, bool) -> str
+    if ireq.editable and ireq.source_dir.startswith('.'):
+        return '-e {}'.format(ireq.source_dir)
+    else:
+        return piptools.utils.format_requirement(
+            ireq, include_specifier=include_specifier)
 
 
 def get_canonical_name(package_name, index_urls=None, *args):
@@ -416,7 +449,7 @@ def resolve_ireqs(requirements,       # type: InstallReqIterable
 
 
 def resolve_specifier(specifier, prereleases=False, *args):
-    # type: (str, bool, str) -> pip.req.InstallRequirement
+    # type: (str, bool, str) -> HashableInstallRequirement
     """Resolves the given specifier.
 
     Args:
@@ -428,7 +461,7 @@ def resolve_specifier(specifier, prereleases=False, *args):
         A set of :class:`pip.req.InstallRequirement`.
 
     """
-    ireq = pip.req.InstallRequirement.from_line(specifier)
+    ireq = HashableInstallRequirement.from_line(specifier)
     pip_options, session = build_pip_session(*args)
     repository = piptools.repositories.PyPIRepository(pip_options, session)
     if ireq.editable or piptools.utils.is_pinned_requirement(ireq):
@@ -483,5 +516,5 @@ def write_requirements(filename,               # type: str
             f.write(header)
 
         for ireq in sorted(requirements, key=lambda ireq: str(ireq)):
-            f.write(piptools.utils.format_requirement(ireq))
+            f.write(format_requirement(ireq))
             f.write('\n')

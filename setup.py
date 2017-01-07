@@ -30,6 +30,7 @@ def setup():
         'pip-tools',
         'requests',
         'sh',
+        'typing',
     ]
     setup_requirements = ['six', 'setuptools>=17.1', 'setuptools_scm']
     needs_sphinx = {

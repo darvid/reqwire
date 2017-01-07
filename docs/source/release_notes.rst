@@ -5,6 +5,20 @@ Release Notes
    :backlinks: none
 
 
+0.1.5 (1/7/17)
+--------------
+
+* Initial support for adding editable requirements.
+* Minor bugfixes.
+* Added typing as a dependency for Python 2.7 to setup script.
+
+
+0.1.2 - 0.1.4 (12/23/16)
+------------------------
+
+* Various fixes for initialization and Python 2 compatibility.
+
+
 0.1.1 (12/22/16)
 ----------------
 

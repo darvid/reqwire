@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 
 import pathlib
+import shlex
 import tempfile
 
 import atomicwrites
@@ -40,7 +41,8 @@ def pip_install(ctx, *specifiers):
 @click.group()
 @click.option('-d', '--directory', default='requirements',
               envvar='REQWIRE_DIR_BASE',
-              help='Requirements directory.')
+              help='Requirements directory.',
+              type=click.Path(file_okay=False, resolve_path=True))
 @click.option('-q', '--quiet/--verbose', default=False,
               help='Suppress output.')
 @click.option('--extension', default='.in',
@@ -54,8 +56,8 @@ def pip_install(ctx, *specifiers):
                    'Defaults to "lck".')
 @click.version_option(version=reqwire.__version__)
 @click.pass_context
-def main(ctx,
-         directory,         # type: click.Context
+def main(ctx,               # type: click.Context
+         directory,         # type: click.Path
          quiet,             # type: bool
          extension,         # type: str
          source_directory,  # type: str
@@ -63,7 +65,7 @@ def main(ctx,
          ):
     # type: (...) -> None
     """reqwire: micromanages your requirements."""
-    requirements_dir = pathlib.Path(directory)
+    requirements_dir = pathlib.Path(str(directory))
     console.verbose = not quiet
     ctx.obj = {
         'build_dir': build_directory,
@@ -76,6 +78,9 @@ def main(ctx,
 @main.command('add')
 @click.option('-b', '--build', default=False, is_flag=True,
               help='Builds the given tag(s) after adding packages.')
+@click.option('-e', '--editable',
+              help='Installs the provided package in editable mode.',
+              multiple=True)
 @click.option('-t', '--tag',
               help=('Target requirement tags. '
                     'Multiple tags supported. '
@@ -99,6 +104,7 @@ def main(ctx,
 def main_add(ctx,                      # type: click.Context
              options,                  # type: Dict[str, Any]
              build,                    # type: bool
+             editable,                 # type: Iterable[str]
              tag,                      # type: Iterable[str]
              install,                  # type: bool
              pin,                      # type: bool
@@ -113,10 +119,13 @@ def main_add(ctx,                      # type: click.Context
         console.error('run `{} init\' first', ctx.find_root().info_name)
         ctx.abort()
 
+    specifiers = tuple('-e {}'.format(e) for e in editable) + specifiers
+
     if install:
+        pip_args = shlex.split(' '.join(specifiers))
         if pre:
-            specifiers = tuple(['--pre'] + list(specifiers))
-        pip_install(ctx, *specifiers)
+            pip_args = ('--pre',) + pip_args
+        pip_install(ctx, *pip_args)
 
     if not tag:
         tag = ('main',)
