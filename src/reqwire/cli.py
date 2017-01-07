@@ -122,7 +122,7 @@ def main_add(ctx,                      # type: click.Context
     specifiers = tuple('-e {}'.format(e) for e in editable) + specifiers
 
     if install:
-        pip_args = shlex.split(' '.join(specifiers))
+        pip_args = tuple(shlex.split(' '.join(specifiers)))
         if pre:
             pip_args = ('--pre',) + pip_args
         pip_install(ctx, *pip_args)
