@@ -213,7 +213,7 @@ def extend_source_file(working_directory,             # type: str
         index_urls=lookup_index_urls,
         prereleases=prereleases,
         resolve_canonical_names=resolve_canonical_names,
-        resolve_source_dir=str(working_directory.parent),
+        resolve_source_dir=str(pathlib.Path(working_directory).parent),
         resolve_versions=resolve_versions)
 
     resolved_requirements = reqwire.helpers.requirements.resolve_ireqs(

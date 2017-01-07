@@ -146,7 +146,7 @@ def main_add(ctx,                      # type: click.Context
         for tag_name in tag:
             console.info('saving requirement(s) to {}', tag_name)
             reqwire.scaffold.extend_source_file(
-                working_directory=options['directory'],
+                working_directory=str(options['directory']),
                 tag_name=tag_name,
                 specifiers=specifiers,
                 extension=options['extension'],
