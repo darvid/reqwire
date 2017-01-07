@@ -4,6 +4,15 @@ Release Notes
 .. contents::
    :backlinks: none
 
+0.1.6 (1/7/17)
+--------------
+
+* Fixed support for installing/adding editable projects from VCS that
+  use `setuptools_scm`_.
+
+
+.. _setuptools_scm: https://github.com/pypa/setuptools_scm
+
 
 0.1.5 (1/7/17)
 --------------

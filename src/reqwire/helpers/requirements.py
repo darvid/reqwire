@@ -5,6 +5,7 @@ import enum
 import io
 import itertools
 import optparse
+import os
 import pathlib
 import shlex
 import typing
@@ -142,6 +143,32 @@ class PyPiHtmlParserState(enum.IntEnum):
     found_package_name = 2
 
 
+class PyPiRepository(piptools.repositories.PyPIRepository):
+
+    def get_dependencies(self, ireq):
+        # type: (pip.req.InstallRequirement) -> Set[pip.req.InstallRequirement]
+        if not (ireq.editable or piptools.utils.is_pinned_requirement(ireq)):
+            raise TypeError(
+                'Expected pinned or editable InstallRequirement, '
+                'got {}'.format(ireq))
+
+        if not os.path.isdir(self._download_dir):
+            os.makedirs(self._download_dir)
+        if not os.path.isdir(self._wheel_download_dir):
+            os.makedirs(self._wheel_download_dir)
+
+        download_dir = self._download_dir
+        if ireq.editable and pip.download.is_vcs_url(ireq.link):
+            download_dir = None
+        reqset = pip.req.RequirementSet(self.build_dir,
+                                self.source_dir,
+                                download_dir=download_dir,
+                                wheel_download_dir=self._wheel_download_dir,
+                                session=self.session)
+        dependencies = reqset._prepare_file(self.finder, ireq)
+        return set(dependencies)
+
+
 class RequirementFile(object):
     """Represents a Python requirements.txt file."""
 
@@ -210,7 +237,7 @@ class RequirementFile(object):
         """
         self.nested_files = self.parse_nested_files()
         pip_options, session = build_pip_session(*args)
-        repository = piptools.repositories.PyPIRepository(pip_options, session)
+        repository = PyPiRepository(pip_options, session)
         requirements = pip.req.parse_requirements(
             str(self.filename),
             finder=repository.finder,
@@ -406,7 +433,7 @@ def parse_requirements(filename, *args):  # pragma: no cover
 
     """
     pip_options, session = build_pip_session(*args)
-    repository = piptools.repositories.PyPIRepository(pip_options, session)
+    repository = PyPiRepository(pip_options, session)
     requirements = pip.req.parse_requirements(
         filename,
         finder=repository.finder,
@@ -438,7 +465,7 @@ def resolve_ireqs(requirements,       # type: InstallReqIterable
 
     """
     pip_options, session = build_pip_session(*args)
-    repository = piptools.repositories.PyPIRepository(pip_options, session)
+    repository = PyPiRepository(pip_options, session)
     resolver = piptools.resolver.Resolver(
         constraints=requirements, repository=repository, **kwargs)
     results = resolver.resolve()
@@ -463,7 +490,7 @@ def resolve_specifier(specifier, prereleases=False, *args):
     """
     ireq = HashableInstallRequirement.from_line(specifier)
     pip_options, session = build_pip_session(*args)
-    repository = piptools.repositories.PyPIRepository(pip_options, session)
+    repository = PyPiRepository(pip_options, session)
     if ireq.editable or piptools.utils.is_pinned_requirement(ireq):
         return ireq
     else:

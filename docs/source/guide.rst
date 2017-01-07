@@ -91,6 +91,10 @@ reqwire add
   Calls :ref:`reqwire build` for each tag provided (or ``main`` if no
   tags were provided).
 
+* ``reqwire add -e [path/url]``
+
+  Adds an editable project.
+
 * ``reqwire add [-t <tag name>]... [specifier]...``
 
   Saves packages to the specified requirement tag(s).
