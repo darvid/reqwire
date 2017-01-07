@@ -160,7 +160,8 @@ class PyPiRepository(piptools.repositories.PyPIRepository):
         download_dir = self._download_dir
         if ireq.editable and pip.download.is_vcs_url(ireq.link):
             download_dir = None
-        reqset = pip.req.RequirementSet(self.build_dir,
+        reqset = pip.req.RequirementSet(
+            self.build_dir,
             self.source_dir,
             download_dir=download_dir,
             wheel_download_dir=self._wheel_download_dir,
