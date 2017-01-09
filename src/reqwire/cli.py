@@ -88,8 +88,6 @@ def main(ctx,               # type: click.Context
               multiple=True)
 @click.option('--install/--no-install', default=True,
               help='Installs packages with pip.')
-@click.option('--pin/--no-pin', default=True,
-              help='Saves specifiers with pinned package versions.')
 @click.option('--pre', default=False, is_flag=True,
               help='Include prerelease versions.')
 @click.option('--resolve-canonical-names/--no-resolve-canonical-names',
@@ -107,7 +105,6 @@ def main_add(ctx,                      # type: click.Context
              editable,                 # type: Iterable[str]
              tag,                      # type: Iterable[str]
              install,                  # type: bool
-             pin,                      # type: bool
              pre,                      # type: bool
              resolve_canonical_names,  # type: bool
              resolve_versions,         # type: bool
