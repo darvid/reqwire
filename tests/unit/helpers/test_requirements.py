@@ -54,3 +54,9 @@ def test_get_canonical_name():
 def test_requirements_from_line():
     assert reqwire.helpers.requirements.HashableInstallRequirement.from_line(
         'reqwire') is not None
+
+
+def test_resolve_specifier_wihout_resolve_versions(ireq):
+    requirement = reqwire.helpers.requirements.resolve_specifier(
+        'reqwire', resolve_versions=False)
+    assert not requirement.is_pinned

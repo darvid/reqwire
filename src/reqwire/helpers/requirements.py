@@ -344,11 +344,12 @@ def build_ireq_set(specifiers,                    # type: Iterable[str]
     for specifier in specifiers:
         if specifier.startswith('-e'):
             ireq = HashableInstallRequirement.from_line(specifier)
-        elif resolve_versions:
+        else:
             args = []
             for index_url in index_urls:
                 args.extend(['--extra-index-url', index_url])
-            ireq = resolve_specifier(specifier, prereleases, *args)
+            ireq = resolve_specifier(specifier, prereleases, resolve_versions,
+                                     *args)
         if resolve_canonical_names and not ireq.editable:
             package_name = piptools.utils.name_from_req(ireq)
             canonical_name = get_canonical_name(
@@ -477,8 +478,12 @@ def resolve_ireqs(requirements,       # type: InstallReqIterable
     return results
 
 
-def resolve_specifier(specifier, prereleases=False, *args):
-    # type: (str, bool, str) -> HashableInstallRequirement
+def resolve_specifier(specifier,              # type: str
+                      prereleases=False,      # type: bool
+                      resolve_versions=True,  # type: bool
+                      *args                   # type: str # noqa: C812
+                      ):
+    # type: (...) -> HashableInstallRequirement
     """Resolves the given specifier.
 
     Args:
@@ -493,7 +498,9 @@ def resolve_specifier(specifier, prereleases=False, *args):
     ireq = HashableInstallRequirement.from_line(specifier)
     pip_options, session = build_pip_session(*args)
     repository = PyPiRepository(pip_options, session)
-    if ireq.editable or piptools.utils.is_pinned_requirement(ireq):
+    if (ireq.editable or
+            piptools.utils.is_pinned_requirement(ireq) or
+            not resolve_versions):
         return ireq
     else:
         return repository.find_best_match(ireq, prereleases=prereleases)
