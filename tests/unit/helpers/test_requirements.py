@@ -49,3 +49,8 @@ def test_get_canonical_name():
     assert name == 'Jinja2'
     with pytest.raises(pip.exceptions.DistributionNotFound):
         name = reqwire.helpers.requirements.get_canonical_name('Jinja3')
+
+
+def test_requirements_from_line():
+    assert reqwire.helpers.requirements.HashableInstallRequirement.from_line(
+        'reqwire') is not None
