@@ -93,7 +93,8 @@ class HashableInstallRequirement(typing.Hashable, pip.req.InstallRequirement):
             name = name[2:].strip()
             ireq = cls.from_editable(name, **kwargs)
         else:
-            ireq = cls.from_line(name, **kwargs)
+            ireq = super(HashableInstallRequirement, cls).from_line(name,
+                                                                    **kwargs)
         return cls.from_ireq(ireq)
 
     def __eq__(self, other):  # noqa: D105
