@@ -4,6 +4,25 @@ Release Notes
 .. contents::
    :backlinks: none
 
+0.1.7 (1/9/2017)
+----------------
+
+Bugfix release, thanks to contributions from `ticosax`_.
+
+* Merged `PR #6 <https://github.com/darvid/reqwire/pull/6>`_ by `ticosax`_,
+  fixes infinite recursion in
+  :meth:`reqwire.helpers.requirements.HashableInstallRequirement.from_line`.
+
+* Merged `PR #8 <https://github.com/darvid/reqwire/pull/8>`_ by `ticosax`_.
+  fixes ``--no-resolve-versions``.
+
+* Merged `PR #9 <https://github.com/darvid/reqwire/pull/9>`_ by `ticosax`_,
+  removes ``--pin/--no-pin`` flag in favor of ``--no-resolve-versions``.
+
+
+.. _ticosax: https://github.com/ticosax
+
+
 0.1.6 (1/7/17)
 --------------
 

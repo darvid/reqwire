@@ -87,8 +87,9 @@ class HashableInstallRequirement(typing.Hashable, pip.req.InstallRequirement):
             constraint=ireq.constraint)
 
     @classmethod
-    def from_line(cls, name, **kwargs):  # noqa: D102
+    def from_line(cls, name, **kwargs):
         # type: (str, Any) -> HashableInstallRequirement
+        """Creates a hashable install requirement from a name."""
         if name.startswith('-e'):
             name = name[2:].strip()
             ireq = cls.from_editable(name, **kwargs)
