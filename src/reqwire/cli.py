@@ -195,7 +195,7 @@ def main_build(ctx,                  # type: click.Context
         console.info('building {}', click.format_filename(str(dest)))
         args = default_args[:]
         args += [str(src)]
-        args += list(pip_compile_options)
+        args += ['--{}'.format(o) for o in pip_compile_options]
         with atomicwrites.AtomicWriter(str(dest), 'w', True).open() as f:
             f.write(reqwire.scaffold.MODELINES_HEADER)
             with tempfile.NamedTemporaryFile() as temp_file:

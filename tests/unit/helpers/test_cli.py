@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+import sh
 import builtins
 import sys
 
@@ -68,3 +69,11 @@ def test_console_writer_verbose(mocker):
         message = reqwire.helpers.cli.emojize(fmt.format(msg='test'))
         click_echo.assert_called_once_with(message)
         click_echo.reset_mock()
+
+
+def test_build_with_pip_compile_options(cli_runner, mocker):
+    from reqwire.cli import main
+    pip_compile = mocker.patch.object(sh, 'pip_compile')
+    result = cli_runner.invoke(main, ['build', '-t', 'main', 'no-header'])
+    assert result.exit_code == 0, result.output
+    assert pip_compile.call_args[0][2] == '--no-header'
