@@ -2,10 +2,6 @@
 from __future__ import absolute_import
 
 import sh
-import builtins
-import sys
-
-import six
 
 import reqwire.helpers.cli
 
@@ -36,7 +32,7 @@ def test_emojize_linux(mocker):
 
 def test_emojize_linux_ioerror(mocker):
     mocker.patch('sys.platform', 'linux')
-    io_open = mocker.patch('io.open', side_effect=IOError)
+    mocker.patch('io.open', side_effect=IOError)
     assert reqwire.helpers.cli.emojize(
         ':thumbs_up_sign:').encode('utf-8') == b'\xf0\x9f\x91\x8d'
 
@@ -46,7 +42,7 @@ def test_emojize_wsl(mocker):
     mocker.patch('io.open', mocker.mock_open(
         read_data='Linux version 3.4.0-Microsoft (Microsoft@Microsoft.com)'))
     assert reqwire.helpers.cli.emojize(
-        ':thumbs_up_sign: foo').encode('utf-8')  == b'foo'
+        ':thumbs_up_sign: foo').encode('utf-8') == b'foo'
 
 
 def test_console_writer_quiet(mocker):
