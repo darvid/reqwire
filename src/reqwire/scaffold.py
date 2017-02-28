@@ -221,6 +221,9 @@ def extend_source_file(working_directory,             # type: str
         prereleases=prereleases,
         intersect=True)
 
+    if reqwire.config.preserve_toplevel:
+        resolved_requirements |= req_file.requirements
+
     nested_cfiles = ordered_set.OrderedSet(
         str(cf.filename.relative_to(filename.parent))
         for cf in req_file.nested_cfiles)
