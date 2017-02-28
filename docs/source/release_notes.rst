@@ -4,6 +4,13 @@ Release Notes
 .. contents::
    :backlinks: none
 
+0.1.8 (2/27/2017)
+-----------------
+
+* Allow preservation of top-level dependencies
+  (`#12 <https://github.com/darvid/reqwire/issues/12>`_).
+
+
 0.1.7 (1/9/2017)
 ----------------
 
