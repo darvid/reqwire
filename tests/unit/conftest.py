@@ -1,6 +1,6 @@
 import datetime
-import pip.models
 
+from click.testing import CliRunner
 import pytest
 
 
@@ -20,3 +20,8 @@ def patch_datetime_now(fake_time, mocker):
             return fake_time
 
     mocker.patch('datetime.datetime', mocked_datetime)
+
+
+@pytest.fixture(scope='session')
+def cli_runner():
+    return CliRunner()
