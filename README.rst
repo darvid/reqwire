@@ -1,6 +1,10 @@
 reqwire
 =======
 
+.. image:: https://api.codacy.com/project/badge/Grade/1130364b44eb4fddb0091e060f84351a
+   :alt: Codacy Badge
+   :target: https://www.codacy.com/app/darvid/reqwire?utm_source=github.com&utm_medium=referral&utm_content=darvid/reqwire&utm_campaign=badger
+
 .. image:: https://img.shields.io/pypi/v/reqwire.svg
    :target: https://pypi.python.org/pypi/reqwire
 
