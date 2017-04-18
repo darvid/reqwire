@@ -30,7 +30,7 @@ import six.moves
 
 MYPY = False
 if MYPY:  # pragma: no cover
-    from typing import Any, Iterable, Optional, Set, Tuple  # noqa: F401
+    from typing import Any, Iterable, List, Optional, Set, Tuple  # noqa: F401
 
     InstallReqIterable = Iterable['HashableInstallRequirement']
     InstallReqSet = Set['HashableInstallRequirement']
@@ -214,6 +214,7 @@ class RequirementFile(object):
         """A Python package index URL."""
         if len(self.index_urls):
             return self.index_urls[0]
+        return None
 
     @property
     def extra_index_urls(self):
@@ -340,6 +341,8 @@ def build_ireq_set(specifiers,                    # type: Iterable[str]
 
     """
     install_requirements = ordered_set.OrderedSet()
+    if index_urls is None:
+        index_urls = []
     if sort_specifiers:
         specifiers = sorted(specifiers)
     for specifier in specifiers:
@@ -352,7 +355,7 @@ def build_ireq_set(specifiers,                    # type: Iterable[str]
             ireq = resolve_specifier(specifier, prereleases, resolve_versions,
                                      *args)
         if resolve_canonical_names and not ireq.editable:
-            package_name = piptools.utils.name_from_req(ireq)
+            package_name = ireq.name
             canonical_name = get_canonical_name(
                 package_name=package_name, index_urls=index_urls)
             update_ireq_name(
@@ -385,13 +388,12 @@ def build_pip_session(*args):
     return pip_options, session
 
 
-def format_requirement(ireq, include_specifier=True):
+def format_requirement(ireq, marker=None):
     # type: (HashableInstallRequirement, bool) -> str
     if ireq.editable and ireq.source_dir.startswith('.'):
         return '-e {}'.format(ireq.source_dir)
     else:
-        return piptools.utils.format_requirement(
-            ireq, include_specifier=include_specifier)
+        return piptools.utils.format_requirement(ireq, marker=marker)
 
 
 def get_canonical_name(package_name, index_urls=None, *args):
@@ -472,10 +474,11 @@ def resolve_ireqs(requirements,       # type: InstallReqIterable
     repository = PyPiRepository(pip_options, session)
     resolver = piptools.resolver.Resolver(
         constraints=requirements, repository=repository, **kwargs)
-    results = resolver.resolve()
+    results = {HashableInstallRequirement.from_ireq(r)
+               for r in resolver.resolve()}
     if intersect:
-        results = {ireq for ireq in results
-                   if ireq in set(requirements)}
+        results = results & {HashableInstallRequirement.from_ireq(r)
+                             for r in requirements}
     return results
 
 

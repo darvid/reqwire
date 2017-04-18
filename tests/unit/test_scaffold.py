@@ -1,5 +1,3 @@
-import datetime
-
 import pathlib
 import pip.models
 import pip.req
@@ -43,13 +41,13 @@ def test_extend_source_file(mocker, tmpdir):
     src_dir = tmpdir.mkdir('src')
     src_file = src_dir.join('requirements.in')
     with mocker.patch('reqwire.helpers.requirements.resolve_specifier',
-            return_value=pip.req.InstallRequirement.from_line(
-                'Flask==0.11.1')):
+                      return_value=pip.req.InstallRequirement.from_line(
+                          'Flask==0.11.1')):
         reqwire.scaffold.extend_source_file(
             working_directory=str(tmpdir),
             tag_name='requirements',
             specifiers=['flask'])
-        assert 'Flask==0.11.1' in src_file.read()
+        assert 'flask==0.11.1' in src_file.read()
 
 
 def test_init_source_dir(tmpdir):

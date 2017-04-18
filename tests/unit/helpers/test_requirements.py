@@ -60,3 +60,9 @@ def test_resolve_specifier_wihout_resolve_versions(ireq):
     requirement = reqwire.helpers.requirements.resolve_specifier(
         'reqwire', resolve_versions=False)
     assert not requirement.is_pinned
+
+
+def test_build_ireq_set():
+    specifiers = ['Flask']
+    result = reqwire.helpers.requirements.build_ireq_set(specifiers)
+    assert result
