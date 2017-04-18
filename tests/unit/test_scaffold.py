@@ -1,5 +1,3 @@
-import datetime
-
 import pathlib
 import pip.models
 import pip.req
