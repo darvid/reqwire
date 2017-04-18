@@ -30,7 +30,7 @@ import six.moves
 
 MYPY = False
 if MYPY:  # pragma: no cover
-    from typing import Any, Iterable, Optional, Set, Tuple  # noqa: F401
+    from typing import Any, Iterable, List, Optional, Set, Tuple  # noqa: F401
 
     InstallReqIterable = Iterable['HashableInstallRequirement']
     InstallReqSet = Set['HashableInstallRequirement']
@@ -214,6 +214,7 @@ class RequirementFile(object):
         """A Python package index URL."""
         if len(self.index_urls):
             return self.index_urls[0]
+        return None
 
     @property
     def extra_index_urls(self):
