@@ -340,6 +340,8 @@ def build_ireq_set(specifiers,                    # type: Iterable[str]
 
     """
     install_requirements = ordered_set.OrderedSet()
+    if index_urls is None:
+        index_urls = []
     if sort_specifiers:
         specifiers = sorted(specifiers)
     for specifier in specifiers:
@@ -352,7 +354,7 @@ def build_ireq_set(specifiers,                    # type: Iterable[str]
             ireq = resolve_specifier(specifier, prereleases, resolve_versions,
                                      *args)
         if resolve_canonical_names and not ireq.editable:
-            package_name = piptools.utils.name_from_req(ireq)
+            package_name = ireq.name
             canonical_name = get_canonical_name(
                 package_name=package_name, index_urls=index_urls)
             update_ireq_name(
@@ -472,10 +474,11 @@ def resolve_ireqs(requirements,       # type: InstallReqIterable
     repository = PyPiRepository(pip_options, session)
     resolver = piptools.resolver.Resolver(
         constraints=requirements, repository=repository, **kwargs)
-    results = resolver.resolve()
+    results = {HashableInstallRequirement.from_ireq(r)
+               for r in resolver.resolve()}
     if intersect:
-        results = {ireq for ireq in results
-                   if ireq in set(requirements)}
+        results = results & {HashableInstallRequirement.from_ireq(r)
+                             for r in requirements}
     return results
 
 

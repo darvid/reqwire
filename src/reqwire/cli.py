@@ -285,8 +285,8 @@ def main_remove(ctx,
             hireq = (reqwire.helpers.requirements.HashableInstallRequirement
                      .from_line(specifier))
             for requirement in req_file.requirements:
-                src_req_name = piptools.utils.name_from_req(requirement)
-                target_req_name = piptools.utils.name_from_req(hireq)
+                src_req_name = requirement.name
+                target_req_name = hireq.name
                 if src_req_name == target_req_name:
                     req_file.requirements.remove(requirement)
                     console.info('removed "{}" from {}',

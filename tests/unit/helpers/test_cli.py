@@ -77,3 +77,9 @@ def test_build_with_pip_compile_options(cli_runner, mocker):
     result = cli_runner.invoke(main, ['build', '-t', 'main', '--', '--no-header'])
     assert result.exit_code == 0, result.output
     assert pip_compile.call_args[0][2] == '--no-header'
+
+
+def test_main_remove(cli_runner):
+    from reqwire.cli import main
+    result = cli_runner.invoke(main, ['remove', 'Flask'])
+    assert result.exit_code == 0, result.output
