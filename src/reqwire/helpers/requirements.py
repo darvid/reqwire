@@ -387,13 +387,12 @@ def build_pip_session(*args):
     return pip_options, session
 
 
-def format_requirement(ireq, include_specifier=True):
+def format_requirement(ireq, marker=None):
     # type: (HashableInstallRequirement, bool) -> str
     if ireq.editable and ireq.source_dir.startswith('.'):
         return '-e {}'.format(ireq.source_dir)
     else:
-        return piptools.utils.format_requirement(
-            ireq, include_specifier=include_specifier)
+        return piptools.utils.format_requirement(ireq, marker=marker)
 
 
 def get_canonical_name(package_name, index_urls=None, *args):
