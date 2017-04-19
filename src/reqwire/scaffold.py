@@ -216,13 +216,15 @@ def extend_source_file(working_directory,             # type: str
         resolve_source_dir=str(pathlib.Path(working_directory).parent),
         resolve_versions=resolve_versions)
 
-    resolved_requirements = reqwire.helpers.requirements.resolve_ireqs(
-        requirements=req_file.requirements,
-        prereleases=prereleases,
-        intersect=True)
-
-    if reqwire.config.preserve_toplevel:
-        resolved_requirements |= req_file.requirements
+    if resolve_versions:
+        resolved_requirements = reqwire.helpers.requirements.resolve_ireqs(
+            requirements=req_file.requirements,
+            prereleases=prereleases,
+            intersect=True)
+        if reqwire.config.preserve_toplevel:
+            resolved_requirements |= req_file.requirements
+    else:
+        resolved_requirements = req_file.requirements
 
     nested_cfiles = ordered_set.OrderedSet(
         str(cf.filename.relative_to(filename.parent))
