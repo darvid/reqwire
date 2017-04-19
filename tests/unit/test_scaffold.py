@@ -50,6 +50,24 @@ def test_extend_source_file(mocker, tmpdir):
         assert 'flask==0.11.1' in src_file.read()
 
 
+@responses.activate
+def test_extend_source_file_wo_resolve_versions(mocker, tmpdir):
+    responses.add(
+        responses.GET, pip.models.PyPI.simple_url,
+        body=b'<a>Flask</a>\n')
+    src_dir = tmpdir.mkdir('src')
+    src_file = src_dir.join('requirements.in')
+    with mocker.patch('reqwire.helpers.requirements.resolve_specifier',
+                      return_value=pip.req.InstallRequirement.from_line(
+                          'Flask')):
+        reqwire.scaffold.extend_source_file(
+            working_directory=str(tmpdir),
+            tag_name='requirements',
+            resolve_versions=False,
+            specifiers=['flask'])
+        assert 'flask' in src_file.read(), src_file.read()
+
+
 def test_init_source_dir(tmpdir):
     reqwire.scaffold.init_source_dir(str(tmpdir))
     assert tmpdir.join('src').exists()
