@@ -4,6 +4,12 @@ Release Notes
 .. contents::
    :backlinks: none
 
+0.2.0 (4/18/2017)
+-----------------
+
+* Merged `PR #14 <https://github.com/darvid/reqwire/pull/14>`_ by `ticosax`_,
+  drops support for pip-tools <1.9.0.
+
 0.1.8 (2/27/2017)
 -----------------
 
