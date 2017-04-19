@@ -477,8 +477,8 @@ def resolve_ireqs(requirements,       # type: InstallReqIterable
     results = {HashableInstallRequirement.from_ireq(r)
                for r in resolver.resolve()}
     if intersect:
-        results = results & {HashableInstallRequirement.from_ireq(r)
-                             for r in requirements}
+        results &= {HashableInstallRequirement.from_ireq(r)
+                    for r in requirements}
     return results
 
 
