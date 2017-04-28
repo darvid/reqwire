@@ -390,8 +390,12 @@ def build_pip_session(*args):
 
 def format_requirement(ireq, marker=None):
     # type: (HashableInstallRequirement, bool) -> str
-    if ireq.editable and ireq.source_dir.startswith('.'):
-        return '-e {}'.format(ireq.source_dir)
+    if ireq.editable:
+        if ireq.source_dir and ireq.source_dir.startswith('.'):
+            return '-e {}'.format(ireq.source_dir)
+        if ireq.link:
+            return '-e {}'.format(ireq.link)
+        raise NotImplementedError('Unknown type of editable requirement')
     else:
         return piptools.utils.format_requirement(ireq, marker=marker)
 
