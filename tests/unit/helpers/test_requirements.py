@@ -1,3 +1,5 @@
+import os
+
 import pip.exceptions
 import pip.models
 import pip.req
@@ -66,3 +68,13 @@ def test_build_ireq_set():
     specifiers = ['Flask']
     result = reqwire.helpers.requirements.build_ireq_set(specifiers)
     assert result
+
+
+@pytest.mark.parametrize('req,expected', [
+    ('-e git+https://github.com/darvid/reqwire.git@master#egg=reqwire',
+     '-e git+https://github.com/darvid/reqwire.git@master#egg=reqwire'),
+    ('-e .', '-e file://{}'.format(os.path.abspath(os.path.dirname('.')))),
+])
+def test_format_requirement(req, expected):
+    ireq = reqwire.helpers.requirements.HashableInstallRequirement.from_line(req)  # noqa
+    assert reqwire.helpers.requirements.format_requirement(ireq) == expected
