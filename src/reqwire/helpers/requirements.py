@@ -100,13 +100,11 @@ class HashableInstallRequirement(typing.Hashable, pip.req.InstallRequirement):
 
     def __eq__(self, other):  # noqa: D105
         # type: (Any) -> bool
-        # TODO(dpg): Compare the underlying requirement only, rather
-        # than the InstallRequirement
-        return str(self) == str(other)
+        return str(self.req) == str(other.req)
 
     def __hash__(self):  # noqa: D105
         # type: () -> int
-        return hash(str(self))
+        return hash(str(self.req))
 
 
 class PyPiHtmlParser(six.moves.html_parser.HTMLParser, object):
@@ -481,7 +479,7 @@ def resolve_ireqs(requirements,       # type: InstallReqIterable
     results = {HashableInstallRequirement.from_ireq(r)
                for r in resolver.resolve()}
     if intersect:
-        results &= {HashableInstallRequirement.from_ireq(r)
+        results |= {HashableInstallRequirement.from_ireq(r)
                     for r in requirements}
     return results
 
@@ -511,7 +509,8 @@ def resolve_specifier(specifier,              # type: str
             not resolve_versions):
         return ireq
     else:
-        return repository.find_best_match(ireq, prereleases=prereleases)
+        return HashableInstallRequirement.from_ireq(
+            repository.find_best_match(ireq, prereleases=prereleases))
 
 
 def update_ireq_name(install_requirement, package_name):

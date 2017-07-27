@@ -208,7 +208,8 @@ def extend_source_file(working_directory,             # type: str
         if not lookup_index_urls and req_file.index_urls:
             lookup_index_urls |= req_file.index_urls
 
-    req_file.requirements |= reqwire.helpers.requirements.build_ireq_set(
+    requirements = req_file.requirements
+    requirements |= reqwire.helpers.requirements.build_ireq_set(
         specifiers=specifiers,
         index_urls=lookup_index_urls,
         prereleases=prereleases,
@@ -217,14 +218,10 @@ def extend_source_file(working_directory,             # type: str
         resolve_versions=resolve_versions)
 
     if resolve_versions:
-        resolved_requirements = reqwire.helpers.requirements.resolve_ireqs(
+        requirements |= reqwire.helpers.requirements.resolve_ireqs(
             requirements=req_file.requirements,
             prereleases=prereleases,
             intersect=True)
-        if reqwire.config.preserve_toplevel:
-            resolved_requirements |= req_file.requirements
-    else:
-        resolved_requirements = req_file.requirements
 
     nested_cfiles = ordered_set.OrderedSet(
         str(cf.filename.relative_to(filename.parent))
@@ -235,7 +232,7 @@ def extend_source_file(working_directory,             # type: str
 
     reqwire.helpers.requirements.write_requirements(
         filename=str(filename),
-        requirements=resolved_requirements,
+        requirements=requirements,
         header=build_source_header(
             index_url=index_url,
             extra_index_urls=extra_index_urls,

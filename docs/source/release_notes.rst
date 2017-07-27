@@ -4,6 +4,11 @@ Release Notes
 .. contents::
    :backlinks: none
 
+0.2.1 (7/26/2017)
+-----------------
+
+* Bugfix release. Fixes `#17 <https://github.com/darvid/reqwire/issues/17>`_.
+
 0.2.0 (4/18/2017)
 -----------------
 
