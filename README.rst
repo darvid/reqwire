@@ -26,17 +26,18 @@ reqwire
 .. image:: https://asciinema.org/a/97035.png
    :align: center
    :target: https://asciinema.org/a/97035
+  
 
 Install
 -------
 
 From **PyPI**::
 
-    $ pip install -U reqwire
+    $ pip3 install -U reqwire
 
 From **source**::
 
-    $ pip install -e git+https://github.com/darvid/reqwire.git#egg=reqwire
+    $ pip3 install -e git+https://github.com/darvid/reqwire.git#egg=reqwire
 
 Features
 --------
@@ -112,3 +113,12 @@ Roadmap
 	- https://www.kennethreitz.org/essays/a-better-pip-workflow
 	- https://mail.python.org/pipermail/distutils-sig/2015-December/027954.html
 	- https://devcenter.heroku.com/articles/python-pip#best-practices
+ 
+ 
+ ## For Installing lastest Version of pip 
+ ## Requirements 
+ ## python 3.8
+    sudo apt-get install python3-pip
+    ## if there is an error for unmet dependencies
+    sudo apt-get install libgcc-6 libdev-9 
+    ##to solve the error
