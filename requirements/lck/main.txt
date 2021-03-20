@@ -19,7 +19,7 @@ ordered-set==2.0.1
 pathlib2==2.1.0
 pathlib==1.0.1            # via biome
 pip-tools==1.9.0
-requests==2.12.3
+requests==2.20.0
 sh==1.12.7
 six==1.10.0               # via attrdict, fasteners, pathlib2, pip-tools
 typing==3.5.2.2

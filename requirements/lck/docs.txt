@@ -28,7 +28,7 @@ pip-tools==1.9.0
 pockets==0.3.2            # via sphinxcontrib-napoleon
 pygments==2.2.0           # via sphinx
 pytz==2017.2              # via babel
-requests==2.12.3
+requests==2.20.0
 sh==1.12.7
 six==1.10.0               # via attrdict, fasteners, pathlib2, pip-tools, pockets, sphinx, sphinxcontrib-napoleon
 snowballstemmer==1.2.1    # via sphinx
