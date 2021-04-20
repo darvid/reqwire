@@ -22,7 +22,7 @@ ordered-set==2.0.1
 pathlib2==2.1.0
 pathlib==1.0.1            # via biome
 pip-tools==1.9.0
-py==1.4.33                # via pytest
+py==1.10.0                # via pytest
 pytest-cov==2.4.0
 pytest-mock==1.5.0
 pytest==3.0.7             # via pytest-cov, pytest-mock
